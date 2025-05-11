@@ -1,17 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { InputNumber, Select } from "antd";
 
 const { Option } = Select;
 
-export default function Paso0() {
-  const [tipo, setTipo] = useState("min");
-  const [numVars, setNumVars] = useState(2);
-  const [objetivo, setObjetivo] = useState(Array(2).fill(null));
-  const [restricciones, setRestricciones] = useState([
-    { coef: Array(2).fill(null), signo: "≥", valor: null },
-    { coef: Array(2).fill(null), signo: "≥", valor: null },
-  ]);
-
+export default function Paso0({
+  tipo, setTipo,
+  numVars, setNumVars,
+  objetivo, setObjetivo,
+  restricciones, setRestricciones,
+  onResolver
+}) {
   const selectStyleTVR = {
     width: 120,
     height: 24,
@@ -86,65 +84,31 @@ export default function Paso0() {
 
   return (
     <div style={{ padding: "1rem", fontSize: "14px" }}>
-      {/* Controles de selección */}
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          alignItems: "center",
-          marginBottom: "1rem",
-          flexWrap: "wrap",
-        }}
-      >
+      {/* Controles */}
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: "1rem", flexWrap: "wrap" }}>
         <span>Tipo:</span>
-        <Select
-          value={tipo}
-          onChange={handleTipoChange}
-          style={selectStyleTVR}
-          size="small"
-        >
+        <Select value={tipo} onChange={handleTipoChange} style={selectStyleTVR} size="small">
           <Option value="min">Minimizar</Option>
           <Option value="max">Maximizar</Option>
         </Select>
 
         <span>Variables:</span>
-        <Select
-          value={numVars}
-          onChange={handleNumVarsChange}
-          style={selectStyleTVR}
-          size="small"
-        >
+        <Select value={numVars} onChange={handleNumVarsChange} style={selectStyleTVR} size="small">
           {Array.from({ length: 10 }, (_, i) => (
-            <Option key={i + 1} value={i + 1}>
-              {i + 1}
-            </Option>
+            <Option key={i + 1} value={i + 1}>{i + 1}</Option>
           ))}
         </Select>
 
         <span>Restricciones:</span>
-        <Select
-          value={restricciones.length}
-          onChange={handleNumRestriccionesChange}
-          style={selectStyleTVR}
-          size="small"
-        >
+        <Select value={restricciones.length} onChange={handleNumRestriccionesChange} style={selectStyleTVR} size="small">
           {Array.from({ length: 10 }, (_, i) => (
-            <Option key={i + 1} value={i + 1}>
-              {i + 1}
-            </Option>
+            <Option key={i + 1} value={i + 1}>{i + 1}</Option>
           ))}
         </Select>
       </div>
 
       {/* Función objetivo */}
-      <div
-        style={{
-          display: "flex",
-          gap: 6,
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
-      >
+      <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
         <strong>{tipo === "min" ? "Min Z =" : "Max Z ="}</strong>
         {objetivo.map((val, i) => (
           <React.Fragment key={i}>
@@ -155,10 +119,7 @@ export default function Paso0() {
               size="small"
               controls={false}
             />
-            <span>
-              x{renderSubindice(i + 1)}
-              {i < objetivo.length - 1 ? " +" : ""}
-            </span>
+            <span>x{renderSubindice(i + 1)}{i < objetivo.length - 1 ? " +" : ""}</span>
           </React.Fragment>
         ))}
       </div>
@@ -167,38 +128,22 @@ export default function Paso0() {
       <div style={{ marginTop: "1rem" }}>
         <strong>Restricciones:</strong>
         {restricciones.map((r, resIndex) => (
-          <div
-            key={resIndex}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              marginTop: 4,
-              flexWrap: "wrap",
-            }}
-          >
+          <div key={resIndex} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4, flexWrap: "wrap" }}>
             {r.coef.map((val, i) => (
               <React.Fragment key={i}>
                 <InputNumber
                   value={val}
-                  onChange={(value) =>
-                    handleCambioRestriccion(resIndex, i, value)
-                  }
+                  onChange={(value) => handleCambioRestriccion(resIndex, i, value)}
                   style={inputDynamicStyle(val)}
                   size="small"
                   controls={false}
                 />
-                <span>
-                  x{renderSubindice(i + 1)}
-                  {i < r.coef.length - 1 ? " +" : ""}
-                </span>
+                <span>x{renderSubindice(i + 1)}{i < r.coef.length - 1 ? " +" : ""}</span>
               </React.Fragment>
             ))}
             <Select
               value={r.signo}
-              onChange={(value) =>
-                handleCambioSignoOVlr(resIndex, "signo", value)
-              }
+              onChange={(value) => handleCambioSignoOVlr(resIndex, "signo", value)}
               style={selectStyle}
               size="small"
             >
@@ -208,9 +153,7 @@ export default function Paso0() {
             </Select>
             <InputNumber
               value={r.valor}
-              onChange={(value) =>
-                handleCambioSignoOVlr(resIndex, "valor", value)
-              }
+              onChange={(value) => handleCambioSignoOVlr(resIndex, "valor", value)}
               style={inputDynamicStyle(r.valor)}
               size="small"
               controls={false}
@@ -219,13 +162,27 @@ export default function Paso0() {
         ))}
       </div>
 
-      {/* Restricciones finales x₁, x₂, ... ≥ 0 */}
+      {/* Condición final */}
       <div style={{ marginTop: "1rem", fontStyle: "italic" }}>
-        {Array.from(
-          { length: numVars },
-          (_, i) => `x${renderSubindice(i + 1)}`
-        ).join(", ")}{" "}
-        ≥ 0
+        {Array.from({ length: numVars }, (_, i) => `x${renderSubindice(i + 1)}`).join(", ")} ≥ 0
+      </div>
+
+      {/* Botón Resolver */}
+      <div style={{ marginTop: "1.5rem" }}>
+        <button
+          onClick={onResolver}
+          style={{
+            backgroundColor: "#0070c0",
+            color: "white",
+            border: "none",
+            padding: "6px 16px",
+            fontSize: "14px",
+            borderRadius: "4px",
+            cursor: "pointer"
+          }}
+        >
+          Resolver
+        </button>
       </div>
     </div>
   );

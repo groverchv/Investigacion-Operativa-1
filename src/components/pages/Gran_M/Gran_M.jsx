@@ -1,107 +1,74 @@
-import React, { useState } from 'react';
-import { Button, InputNumber, Select, Table, Typography, Form, Space, Divider } from 'antd';
-
-const { Title, Paragraph } = Typography;
-const { Option } = Select;
+import React, { useState } from "react";
+import Paso0 from "../Pasos_Iniciales/Paso0";
+import Paso1 from "../Pasos_Iniciales/Paso1";
+import Paso2 from "../Pasos_Iniciales/Paso2";
+import Paso3 from "./Paso3";
+import Paso4 from "./Paso4";
+import Paso5 from "./Paso5";
 
 export default function Gran_M() {
+  const [tipo, setTipo] = useState("min");
   const [numVars, setNumVars] = useState(2);
-  const [numRestricciones, setNumRestricciones] = useState(2);
-  const [zCoeffs, setZCoeffs] = useState([]);
-  const [restricciones, setRestricciones] = useState([]);
+  const [objetivo, setObjetivo] = useState(Array(2).fill(null));
+  const [restricciones, setRestricciones] = useState([
+    { coef: Array(2).fill(null), signo: "≥", valor: null },
+    { coef: Array(2).fill(null), signo: "≥", valor: null },
+  ]);
 
-  const [tabla, setTabla] = useState(null);
-
-  const handleZChange = (value, index) => {
-    const copia = [...zCoeffs];
-    copia[index] = value;
-    setZCoeffs(copia);
-  };
-
-  const handleRestriccionChange = (rowIndex, colIndex, value) => {
-    const copia = [...restricciones];
-    if (!copia[rowIndex]) copia[rowIndex] = Array(numVars + 2).fill(0); // +2 = operador y resultado
-    copia[rowIndex][colIndex] = value;
-    setRestricciones(copia);
-  };
-
-  const generarTablaInicial = () => {
-    const vars = Array.from({ length: numVars }, (_, i) => `x${i + 1}`);
-    const data = [];
-
-    restricciones.forEach((r, idx) => {
-      const fila = {};
-      fila.key = idx;
-      vars.forEach((v, i) => (fila[v] = r[i]));
-      fila['operador'] = r[numVars];
-      fila['valor'] = r[numVars + 1];
-      data.push(fila);
-    });
-
-    setTabla({ columnas: vars, data });
-  };
+  const [mostrarPaso1, setMostrarPaso1] = useState(false);
+  const [datosPaso3, setDatosPaso3] = useState(null); // contiene columnas, r0n y matriz
+  const [datosPaso4, setDatosPaso4] = useState(null); // contiene fila y columna pivote
 
   return (
-    <div style={{ padding: 24 }}>
-      <Title>Método de la Gran M - Entrada Dinámica</Title>
-      <Paragraph>Ingrese su problema de programación lineal:</Paragraph>
+    <div>
+      <Paso0
+        tipo={tipo}
+        setTipo={setTipo}
+        numVars={numVars}
+        setNumVars={setNumVars}
+        objetivo={objetivo}
+        setObjetivo={setObjetivo}
+        restricciones={restricciones}
+        setRestricciones={setRestricciones}
+        onResolver={() => setMostrarPaso1(true)}
+      />
 
-      <Space direction="vertical">
-        <Space>
-          <label>Número de variables:</label>
-          <InputNumber min={1} value={numVars} onChange={setNumVars} />
-          <label>Número de restricciones:</label>
-          <InputNumber min={1} value={numRestricciones} onChange={setNumRestricciones} />
-        </Space>
-
-        <Divider>Función Objetivo (Max Z)</Divider>
-        <Form layout="inline">
-          {Array.from({ length: numVars }, (_, i) => (
-            <Form.Item key={i} label={`x${i + 1}`}>
-              <InputNumber onChange={(val) => handleZChange(val, i)} />
-            </Form.Item>
-          ))}
-        </Form>
-
-        <Divider>Restricciones</Divider>
-        {Array.from({ length: numRestricciones }, (_, ri) => (
-          <Form layout="inline" key={ri} style={{ marginBottom: 8 }}>
-            {Array.from({ length: numVars }, (_, vi) => (
-              <Form.Item key={vi} label={`x${vi + 1}`}>
-                <InputNumber onChange={(val) => handleRestriccionChange(ri, vi, val)} />
-              </Form.Item>
-            ))}
-            <Form.Item>
-              <Select defaultValue="≤" style={{ width: 60 }} onChange={(val) => handleRestriccionChange(ri, numVars, val)}>
-                <Option value="≤">≤</Option>
-                <Option value="=">=</Option>
-                <Option value="≥">≥</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item>
-              <InputNumber placeholder="Resultado" onChange={(val) => handleRestriccionChange(ri, numVars + 1, val)} />
-            </Form.Item>
-          </Form>
-        ))}
-
-        <Button type="primary" onClick={generarTablaInicial}>
-          Generar tabla inicial
-        </Button>
-      </Space>
-
-      {tabla && (
+      {mostrarPaso1 && (
         <>
-          <Divider>Tabla Estándar Inicial</Divider>
-          <Table
-            columns={[
-              ...tabla.columnas.map((x) => ({ title: x, dataIndex: x, key: x })),
-              { title: 'Operador', dataIndex: 'operador', key: 'operador' },
-              { title: 'Resultado', dataIndex: 'valor', key: 'valor' },
-            ]}
-            dataSource={tabla.data}
-            bordered
-            pagination={false}
+          <Paso1
+            tipo={tipo}
+            numVars={numVars}
+            objetivo={objetivo}
+            restricciones={restricciones}
           />
+          <Paso2
+            numVars={numVars}
+            restricciones={restricciones}
+          />
+          <Paso3
+            numVars={numVars}
+            restricciones={restricciones}
+            objetivo={objetivo}
+            onResultado={setDatosPaso3} // captura columnas, r0n y matriz
+          />
+          {datosPaso3 && (
+            <Paso4
+              columnas={datosPaso3.columnas}
+              r0n={datosPaso3.r0n}
+              matriz={datosPaso3.matriz}
+              numVars={numVars}
+              onSeleccionPivote={({ fila, columna }) => setDatosPaso4({ fila, columna })}
+            />
+          )}
+          {datosPaso3 && datosPaso4 && (
+            <Paso5
+              columnas={datosPaso3.columnas}
+              r0n={datosPaso3.r0n}
+              matriz={datosPaso3.matriz}
+              filaPivoteVisual={datosPaso4.fila}
+              colPivoteIndex={datosPaso4.columna}
+            />
+          )}
         </>
       )}
     </div>
