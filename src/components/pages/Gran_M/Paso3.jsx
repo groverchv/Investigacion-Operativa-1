@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 
 function calcularRenglonCeroNuevo(r0, matriz, restricciones) {
   return r0.map((val, idx) => {
@@ -8,7 +8,6 @@ function calcularRenglonCeroNuevo(r0, matriz, restricciones) {
       sumaM += typeof coef === "number" ? coef : 0;
     });
 
-    console.log(`R0[${idx}] = ${val} + (-${sumaM}M)`);
 
     if (idx === 0) return -1;
 
@@ -41,53 +40,57 @@ function calcularRenglonCeroNuevo(r0, matriz, restricciones) {
 }
 
 export default function Paso3({ numVars, restricciones, objetivo, onResultado }) {
-  const renderSub = (n) => {
-    const sub = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"];
-    return String(n).split("").map((d) => sub[+d] || "").join("");
-  };
+  const { columnas, r0, matriz, r0n } = useMemo(() => {
+    const renderSub = (n) => {
+      const sub = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"];
+      return String(n).split("").map((d) => sub[+d] || "").join("");
+    };
 
-  const totalVars = numVars + restricciones.length * 2;
-  const columnas = [
-    "Z",
-    ...Array.from({ length: numVars }, (_, i) => `x${renderSub(i + 1)}`),
-    ...Array.from({ length: restricciones.length }, (_, i) => `e${renderSub(i + 1)}`),
-    ...Array.from({ length: restricciones.length }, (_, i) => `a${renderSub(i + 1)}`),
-    "RHS"
-  ];
+    const totalVars = numVars + restricciones.length * 2;
+    const columnas = [
+      "Z",
+      ...Array.from({ length: numVars }, (_, i) => `x${renderSub(i + 1)}`),
+      ...Array.from({ length: restricciones.length }, (_, i) => `e${renderSub(i + 1)}`),
+      ...Array.from({ length: restricciones.length }, (_, i) => `a${renderSub(i + 1)}`),
+      "RHS"
+    ];
 
-  const r0 = [-1];
-  for (let i = 0; i < numVars; i++) r0.push(objetivo[i] ?? 0);
-  for (let i = 0; i < restricciones.length; i++) r0.push(0);
-  for (let i = 0; i < restricciones.length; i++) r0.push("M");
-  r0.push(0);
+    const r0 = [-1];
+    for (let i = 0; i < numVars; i++) r0.push(objetivo[i] ?? 0);
+    for (let i = 0; i < restricciones.length; i++) r0.push(0);
+    for (let i = 0; i < restricciones.length; i++) r0.push("M");
+    r0.push(0);
 
-  const matriz = restricciones.map((r, i) => {
-    const fila = Array(totalVars + 2).fill(0);
-    fila[0] = 0;
+    const matriz = restricciones.map((r, i) => {
+      const fila = Array(totalVars + 2).fill(0);
+      fila[0] = 0;
 
-    const coefX = [...(r.coef || [])];
-    while (coefX.length < numVars) coefX.push(0);
+      const coefX = [...(r.coef || [])];
+      while (coefX.length < numVars) coefX.push(0);
 
-    coefX.forEach((val, j) => {
-      fila[1 + j] = val;
+      coefX.forEach((val, j) => {
+        fila[1 + j] = val;
+      });
+
+      for (let j = 0; j < restricciones.length; j++) {
+        fila[1 + numVars + j] = j === i ? -1 : 0;
+        fila[1 + numVars + restricciones.length + j] = j === i ? 1 : 0;
+      }
+
+      fila[1 + totalVars] = r.valor ?? 0;
+      return fila;
     });
 
-    for (let j = 0; j < restricciones.length; j++) {
-      fila[1 + numVars + j] = j === i ? -1 : 0;
-      fila[1 + numVars + restricciones.length + j] = j === i ? 1 : 0;
-    }
+    const r0n = calcularRenglonCeroNuevo(r0, matriz, restricciones);
 
-    fila[1 + totalVars] = r.valor ?? 0;
-    return fila;
-  });
-
-  const r0n = calcularRenglonCeroNuevo(r0, matriz, restricciones);
+    return { columnas, r0, matriz, r0n };
+  }, [numVars, restricciones, objetivo]);
 
   useEffect(() => {
     if (typeof onResultado === "function") {
       onResultado({ columnas, r0n, matriz });
     }
-  }, [columnas, r0n, matriz, onResultado]);
+  }, [onResultado]);
 
   return (
     <div style={{ padding: "1rem" }}>

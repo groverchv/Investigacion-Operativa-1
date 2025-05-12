@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 // Evaluar expresión tipo "2 - 3M" con M=1
-function evaluarExpresionM(valor) {
+function evaluarExpresionM(valor, M = 100) {
   if (typeof valor === "number") return valor;
   if (typeof valor === "string") {
-    if (/^-?M$/.test(valor)) return valor.startsWith('-') ? -1 : 1;
+    if (/^-?M$/.test(valor)) return valor.startsWith('-') ? -M : M;
 
-    const match = valor.match(/^(-?\d+)(\s*[+-]\s*\d+)M$/);
+    const match = valor.match(/^(-?\d+)(\s*[+-]\s*)(\d+)M$/);
     if (match) {
       const base = parseInt(match[1], 10);
-      const m = parseInt(match[2].replace(/\s/g, ""), 10);
-      return base + m;
+      const signo = match[2].includes('-') ? -1 : 1;
+      const coef = parseInt(match[3], 10);
+      return base + signo * coef * M;
     }
 
     const soloNumero = valor.match(/^(-?\d+)$/);
@@ -19,7 +20,8 @@ function evaluarExpresionM(valor) {
   return 0;
 }
 
-export default function Paso4({ columnas, r0n, matriz }) {
+
+export default function Paso4({ columnas, r0n, matriz, onSeleccionPivote }) {
   const tabla = [r0n, ...matriz];
   const indiceRHS = columnas.length - 1;
 
@@ -53,9 +55,16 @@ export default function Paso4({ columnas, r0n, matriz }) {
 
   const filaPivoteVisual = pivotRow + 1;
 
+  // 🔁 Llama solo una vez cuando se calculan los índices
+  useEffect(() => {
+    if (typeof onSeleccionPivote === "function" && pivotRow !== -1) {
+      onSeleccionPivote({ fila: filaPivoteVisual, columna: minIndex });
+    }
+  }, [filaPivoteVisual, minIndex, onSeleccionPivote, pivotRow]);
+
   return (
     <div style={{ padding: "1rem" }}>
-      <h3 style={{ color: "#0070c0" }}>4. B&uacute;squeda del Pivote (con M = 1)</h3>
+      <h3 style={{ color: "#0070c0" }}>4. B&uacute;squeda del Pivote (con M = 100)</h3>
 
       <table border={1} cellPadding={4} style={{ borderCollapse: "collapse", marginTop: "1rem" }}>
         <thead>
@@ -89,7 +98,7 @@ export default function Paso4({ columnas, r0n, matriz }) {
       </table>
 
       <div style={{ marginTop: "1rem", backgroundColor: "#fef6d5", padding: "10px", fontSize: "15px" }}>
-        <p><strong>🔹 Evaluación de R0 (con M=1):</strong></p>
+        <p><strong>🔹 Evaluación de R0 (con M=100):</strong></p>
         <ul style={{ marginBottom: "8px" }}>
           {columnas.map((col, i) => (
             i !== 0 && i !== indiceRHS ? (
