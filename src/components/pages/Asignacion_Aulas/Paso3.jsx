@@ -4,14 +4,14 @@ import { Table, Typography } from 'antd';
 
 const { Text } = Typography;
 
-export default function Paso3({ dataSource = [], columns = [] }) {
+export default function Paso3({ dataSource = [], columns = [], onResolved }) {
   const [filasTachadas, setFilasTachadas] = useState([]);
   const [columnasTachadas, setColumnasTachadas] = useState([]);
   const tablaRef = useRef(null);
   const [tablaHeight, setTablaHeight] = useState(0);
   const thRefs = useRef({});
 
-  // Obtener el centro horizontal de una columna
+  // Obtener el centro horizontal de la celda del encabezado
   const getColCenter = (key) => {
     const cell = thRefs.current[key];
     if (!cell || !tablaRef.current) return 0;
@@ -20,14 +20,14 @@ export default function Paso3({ dataSource = [], columns = [] }) {
     return rect.left - tablaRect.left + rect.width / 2;
   };
 
-  // Establecer altura real de la tabla para alinear las líneas verticales
+  // Calcular altura real de la tabla
   useEffect(() => {
     if (tablaRef.current) {
       setTablaHeight(tablaRef.current.clientHeight);
     }
   }, [dataSource, columns]);
 
-  // Lógica para cubrir ceros con menor número de líneas
+  // Lógica principal: cubrir ceros con líneas
   useEffect(() => {
     const filas = dataSource.length;
     const cols = columns.map(c => c.key);
@@ -89,8 +89,16 @@ export default function Paso3({ dataSource = [], columns = [] }) {
 
     setFilasTachadas(filasMarcadas);
     setColumnasTachadas(columnasMarcadas);
-  }, [dataSource, columns]);
 
+    if (onResolved) {
+      onResolved({
+        filasTachadas: filasMarcadas,
+        columnasTachadas: columnasMarcadas,
+      });
+    }
+  }, [dataSource, columns, onResolved]);
+
+  // Construir columnas con referencias
   const dynamicColumns = [
     {
       title: 'Grupo',
@@ -169,12 +177,12 @@ export default function Paso3({ dataSource = [], columns = [] }) {
             key={`fila-${idx}`}
             className="linea-horizontal"
             style={{
-              top: 56 + idx * 54 + 27 - 1, // centrado vertical
+              top: 56 + idx * 54 + 27 - 1,
             }}
           />
         ))}
 
-        {/* Líneas verticales centradas y alineadas desde el borde superior */}
+        {/* Líneas verticales centradas */}
         {columnasTachadas.map((key) => (
           <div
             key={`col-${key}`}
