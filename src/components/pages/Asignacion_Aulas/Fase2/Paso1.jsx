@@ -4,14 +4,14 @@ import { Table, Typography } from 'antd';
 
 const { Text } = Typography;
 
-export default function Paso3({ dataSource = [], columns = [], onResolved }) {
+export default function Paso1({ dataSource = [], columns = [], onResolved }) {
   const [filasTachadas, setFilasTachadas] = useState([]);
   const [columnasTachadas, setColumnasTachadas] = useState([]);
-  const tablaRef = useRef(null);
+  const [alreadySent, setAlreadySent] = useState(false);
   const [tablaHeight, setTablaHeight] = useState(0);
+  const tablaRef = useRef(null);
   const thRefs = useRef({});
 
-  // Obtener el centro horizontal de la celda del encabezado
   const getColCenter = (key) => {
     const cell = thRefs.current[key];
     if (!cell || !tablaRef.current) return 0;
@@ -20,15 +20,22 @@ export default function Paso3({ dataSource = [], columns = [], onResolved }) {
     return rect.left - tablaRect.left + rect.width / 2;
   };
 
-  // Calcular altura real de la tabla
   useEffect(() => {
-    if (tablaRef.current) {
-      setTablaHeight(tablaRef.current.clientHeight);
-    }
+    const actualizarAltura = () => {
+      if (tablaRef.current) {
+        setTablaHeight(tablaRef.current.clientHeight);
+      }
+    };
+
+    window.addEventListener('resize', actualizarAltura);
+    actualizarAltura();
+
+    return () => window.removeEventListener('resize', actualizarAltura);
   }, [dataSource, columns]);
 
-  // Lógica principal: cubrir ceros con líneas
   useEffect(() => {
+    if (alreadySent) return;
+
     const filas = dataSource.length;
     const cols = columns.map(c => c.key);
 
@@ -90,18 +97,18 @@ export default function Paso3({ dataSource = [], columns = [], onResolved }) {
     setFilasTachadas(filasMarcadas);
     setColumnasTachadas(columnasMarcadas);
 
-    if (onResolved) {
+    if (typeof onResolved === 'function') {
       onResolved({
         filasTachadas: filasMarcadas,
         columnasTachadas: columnasMarcadas,
       });
+      setAlreadySent(true);
     }
-  }, [dataSource, columns, onResolved]);
+  }, [dataSource, columns, alreadySent, onResolved]);
 
-  // Construir columnas con referencias
   const dynamicColumns = [
     {
-      title: 'Grupo',
+      title: '',
       dataIndex: 'grupo',
       key: 'grupo',
     },
@@ -137,6 +144,8 @@ export default function Paso3({ dataSource = [], columns = [], onResolved }) {
           .tabla-con-lineas {
             position: relative;
             display: inline-block;
+            width: 100%;
+            overflow-x: auto;
           }
 
           .linea-horizontal {
@@ -169,9 +178,9 @@ export default function Paso3({ dataSource = [], columns = [], onResolved }) {
           pagination={false}
           bordered
           rowKey="key"
+          style={{ minWidth: 600 }}
         />
 
-        {/* Líneas horizontales centradas */}
         {filasTachadas.map(idx => (
           <div
             key={`fila-${idx}`}
@@ -182,7 +191,6 @@ export default function Paso3({ dataSource = [], columns = [], onResolved }) {
           />
         ))}
 
-        {/* Líneas verticales centradas */}
         {columnasTachadas.map((key) => (
           <div
             key={`col-${key}`}
@@ -194,15 +202,6 @@ export default function Paso3({ dataSource = [], columns = [], onResolved }) {
             }}
           />
         ))}
-      </div>
-
-      <div style={{ marginTop: 16 }}>
-        <Text>
-          Filas cubiertas: {JSON.stringify(filasTachadas.map(i => dataSource[i]?.grupo))}
-        </Text><br />
-        <Text>
-          Columnas cubiertas: {JSON.stringify(columnasTachadas)}
-        </Text>
       </div>
     </div>
   );

@@ -40,7 +40,7 @@ export default function Paso1({ dataSource = [], columns = [], onResolved }) {
   // Columnas para la tabla visual
   const reducedColumns = [
     {
-      title: 'Grupo',
+      title: '',
       dataIndex: 'grupo',
       key: 'grupo',
     },

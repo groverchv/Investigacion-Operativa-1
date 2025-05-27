@@ -4,7 +4,7 @@ import { Table, Typography } from 'antd';
 
 const { Text } = Typography;
 
-export default function Paso5({ dataSource = [], columns = [], filasTachadas = [], columnasTachadas = [] }) {
+export default function Paso1({ dataSource = [], columns = [], filasTachadas = [], columnasTachadas = [] }) {
   const tablaRef = useRef(null);
   const thRefs = useRef({});
   const [tablaHeight, setTablaHeight] = useState(0);
@@ -43,7 +43,7 @@ export default function Paso5({ dataSource = [], columns = [], filasTachadas = [
 
   const dynamicColumns = [
     {
-      title: 'Grupo',
+      title: '',
       dataIndex: 'grupo',
       key: 'grupo',
     },

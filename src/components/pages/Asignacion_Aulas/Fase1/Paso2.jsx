@@ -39,7 +39,7 @@ export default function Paso2({ dataSource = [], columns = [], onResolved }) {
   // Columnas para renderizar
   const reducedColumns = [
     {
-      title: 'Grupo',
+      title: '',
       dataIndex: 'grupo',
       key: 'grupo',
     },

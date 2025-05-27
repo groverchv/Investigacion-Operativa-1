@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Typography, Tag } from 'antd';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
-export default function Paso7({ dataSource = [], columns = [] }) {
+export default function Paso1({ dataSource = [], columns = [], onResolved }) {
   const [asignaciones, setAsignaciones] = useState([]);
   const [tablaFinal, setTablaFinal] = useState([]);
   const [costoTotal, setCostoTotal] = useState(0);
@@ -21,7 +21,8 @@ export default function Paso7({ dataSource = [], columns = [] }) {
     while (asignados.length < Math.min(matriz.length, horarioKeys.length)) {
       const opciones = matriz.map((fila, filaIdx) => {
         const disponibles = horarioKeys.filter(
-          (col) => fila[col] === 0 &&
+          (col) =>
+            fila[col] === 0 &&
             !filasTachadas.has(filaIdx) &&
             !columnasTachadas.has(col)
         );
@@ -30,14 +31,18 @@ export default function Paso7({ dataSource = [], columns = [] }) {
 
       if (opciones.length === 0) break;
 
-      const mejor = opciones.reduce((min, curr) => (curr.count < min.count ? curr : min), opciones[0]);
+      const mejor = opciones.reduce(
+        (min, curr) => (curr.count < min.count ? curr : min),
+        opciones[0]
+      );
       const colAsignada = mejor.cols[0];
 
       asignados.push({
         fila: mejor.filaIdx,
-        col: colAsignada,
+        col: colAsignada, // <- usamos key, no título
         grupo: matriz[mejor.filaIdx].grupo,
         horario: columns.find(c => c.key === colAsignada)?.title || colAsignada,
+        costo: dataSource[mejor.filaIdx][colAsignada],
       });
 
       filasTachadas.add(mejor.filaIdx);
@@ -55,7 +60,7 @@ export default function Paso7({ dataSource = [], columns = [] }) {
             <Tag color="green" style={{ fontWeight: 'bold' }}>{original}</Tag>
           );
         } else {
-          nuevaFila[key] = ''; // o mantener el valor original si se desea visualizar todo
+          nuevaFila[key] = '';
         }
       });
       return nuevaFila;
@@ -63,11 +68,15 @@ export default function Paso7({ dataSource = [], columns = [] }) {
 
     setAsignaciones(asignados);
     setTablaFinal(tablaCosto);
-    setCostoTotal(sumaCostos * 1000); // según el ejemplo
+    setCostoTotal(sumaCostos * 1000);
+
+    if (onResolved) {
+      onResolved(asignados, sumaCostos * 1000); // ✅ Enviar asignaciones y costo
+    }
   }, [dataSource, columns]);
 
   const tabla = [
-    { title: 'Grupo', dataIndex: 'grupo', key: 'grupo' },
+    { title: '', dataIndex: 'grupo', key: 'grupo' },
     ...columns.map(col => ({
       title: col.title,
       dataIndex: col.key,
@@ -78,7 +87,6 @@ export default function Paso7({ dataSource = [], columns = [] }) {
   return (
     <div style={{ padding: 24 }}>
       <Title level={3}>Paso 7: Asignación óptima</Title>
-      <p>Se realiza la asignación final tachando ceros independientes y calculando el costo mínimo total.</p>
 
       <Table
         columns={tabla}
@@ -87,17 +95,6 @@ export default function Paso7({ dataSource = [], columns = [] }) {
         bordered
         rowKey="key"
       />
-
-      <div style={{ marginTop: 16 }}>
-        <Title level={5}>Asignaciones realizadas:</Title>
-        {asignaciones.map((a, i) => (
-          <Text key={i}>✅ {a.grupo} asignado a {a.horario}<br /></Text>
-        ))}
-
-        <div style={{ marginTop: 12 }}>
-          <Text strong>Costo total mínimo:</Text> <Text code>{costoTotal.toLocaleString()} euros</Text>
-        </div>
-      </div>
     </div>
   );
 }

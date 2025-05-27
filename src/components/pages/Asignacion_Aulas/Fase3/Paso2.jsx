@@ -4,7 +4,7 @@ import { Table, Typography } from 'antd';
 
 const { Title, Text } = Typography;
 
-export default function Paso6({ dataSource = [], columns = [], filasTachadas = [], columnasTachadas = [], onResolved }) {
+export default function Paso2({ dataSource = [], columns = [], filasTachadas = [], columnasTachadas = [], onResolved }) {
   const [matrizReducida, setMatrizReducida] = useState([]);
   const [minimo, setMinimo] = useState(null);
 
@@ -51,7 +51,7 @@ export default function Paso6({ dataSource = [], columns = [], filasTachadas = [
   }, [dataSource, columns, filasTachadas, columnasTachadas, onResolved]);
 
   const columnasTabla = [
-    { title: 'Grupo', dataIndex: 'grupo', key: 'grupo' },
+    { title: '', dataIndex: 'grupo', key: 'grupo' },
     ...columns.map(col => ({
       title: col.title,
       dataIndex: col.key,

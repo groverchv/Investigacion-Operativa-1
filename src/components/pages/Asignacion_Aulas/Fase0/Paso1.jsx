@@ -14,7 +14,7 @@ import 'antd/dist/reset.css';
 const { Text } = Typography;
 const { Option } = Select;
 
-export default function Paso0({ onListo }) {
+export default function Paso1({ onListo }) {
   const [columns, setColumns] = useState([]);
   const [dataSource, setDataSource] = useState([]);
   const [tablaVisible, setTablaVisible] = useState(false);
@@ -61,47 +61,14 @@ export default function Paso0({ onListo }) {
     />
   );
 
-  const handleEditColName = (colKey, newName) => {
-    setColumns(prev =>
-      prev.map(col =>
-        col.key === colKey ? { ...col, title: newName } : col
-      )
-    );
-    setEditingCol(null);
-  };
-
-  const handleEditRowName = (rowKey, newName) => {
-    setDataSource(prev =>
-      prev.map(row =>
-        row.key === rowKey ? { ...row, grupo: newName } : row
-      )
-    );
-    setEditingRow(null);
-  };
-
   const tableColumns = [
     {
-      title: 'Grupo',
+      title: '',
       dataIndex: 'grupo',
       key: 'grupo',
-      render: (text, record) =>
-        editingRow === record.key ? (
-          <Input
-            autoFocus
-            defaultValue={text}
-            onBlur={(e) => handleEditRowName(record.key, e.target.value)}
-            onPressEnter={(e) => handleEditRowName(record.key, e.target.value)}
-            size="small"
-          />
-        ) : (
-          <Text
-            strong
-            onDoubleClick={() => setEditingRow(record.key)}
-            style={{ cursor: 'pointer' }}
-          >
-            {text}
-          </Text>
-        ),
+      render: (text) => (
+        <Text strong>{text}</Text>
+      ),
     },
     ...columns.map((col) => ({
       title:
@@ -127,6 +94,15 @@ export default function Paso0({ onListo }) {
     })),
   ];
 
+  const handleEditColName = (colKey, newName) => {
+    setColumns(prev =>
+      prev.map(col =>
+        col.key === colKey ? { ...col, title: newName } : col
+      )
+    );
+    setEditingCol(null);
+  };
+
   const crearTablaNxN = (tamaño) => {
     const nuevasColumnas = Array.from({ length: tamaño }, (_, i) => ({
       key: `horario_${i + 1}`,
@@ -151,8 +127,8 @@ export default function Paso0({ onListo }) {
   };
 
   const agregarFila = () => {
-    const nuevoGrupo = prompt('Nombre del nuevo grupo');
-    if (!nuevoGrupo) return;
+    const nuevoIndice = dataSource.length + 1;
+    const nuevoGrupo = `Grupo ${nuevoIndice}`;
 
     const nuevaFila = {
       key: Date.now().toString(),
@@ -167,10 +143,9 @@ export default function Paso0({ onListo }) {
   };
 
   const agregarColumna = () => {
-    const nuevoHorario = prompt('Nombre del nuevo horario');
-    if (!nuevoHorario) return;
-
-    const nuevaKey = nuevoHorario.toLowerCase().replace(/\s/g, '_');
+    const nuevoIndice = columns.length + 1;
+    const nuevoHorario = `Horario ${nuevoIndice}`;
+    const nuevaKey = `horario_${nuevoIndice}`;
 
     setColumns([...columns, { key: nuevaKey, title: nuevoHorario }]);
 
@@ -190,10 +165,6 @@ export default function Paso0({ onListo }) {
 
   return (
     <div style={{ padding: 24 }}>
-      <h2 style={{ marginBottom: 16 }}>
-        {nombreTabla ? `Paso 0 - ${nombreTabla}` : 'Paso 0 - Costos de Asignación'}
-      </h2>
-
       <Space style={{ marginBottom: 16 }} wrap>
         <Select
           style={{
