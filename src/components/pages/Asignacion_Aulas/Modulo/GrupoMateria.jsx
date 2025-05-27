@@ -1,30 +1,7 @@
 import React, { useState } from "react";
 import { Button, Input, Modal, Typography, Space } from "antd";
 
-export default function GrupoMateria() {
-  const [materias, setMaterias] = useState([
-    {
-      nombre: "Cálculo I",
-      grupos: [{ nombre: "Grupo 1", estudiantes: "35" }],
-    },
-    {
-      nombre: "Física I",
-      grupos: [{ nombre: "Grupo 2", estudiantes: "50" }],
-    },
-    {
-      nombre: "Introducción a la Ingeniería",
-      grupos: [{ nombre: "Grupo 3", estudiantes: "120" }],
-    },
-    {
-      nombre: "Redes I",
-      grupos: [{ nombre: "Grupo 4", estudiantes: "40" }],
-    },
-    {
-      nombre: "Álgebra Lineal",
-      grupos: [{ nombre: "Grupo 5", estudiantes: "60" }],
-    },
-  ]);
-
+export default function GrupoMateria({ materias, setMaterias }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [nombreMateria, setNombreMateria] = useState("");
 

@@ -5,7 +5,7 @@ export default function MatrizInicial({ materias, modulos, horarios }) {
   // Recolectar todas las aulas disponibles del módulo FICCT
   const aulasDisponibles = modulos
     .flatMap(modulo => modulo.pisos)
-    .flatMap((piso, index) =>
+    .flatMap(piso =>
       piso.aulas.map(aula => ({
         piso: piso.nombre,
         nombre: aula.nombre,
@@ -14,19 +14,19 @@ export default function MatrizInicial({ materias, modulos, horarios }) {
     );
 
   // Recolectar todos los horarios disponibles
-  const bloques = horarios.map((h, index) => `${index + 1}`);
+  const bloques = horarios.map((_, index) => `${index + 1}`);
 
-  // Asignación simulada por orden: no cruza conflictos
+  // Generar las filas
   const rows = materias.flatMap((materia, idx) => {
     return materia.grupos.map((grupo, i) => {
       const estudiantes = parseInt(grupo.estudiantes);
-      const aulasAsignadas = aulasDisponibles
-        .filter(a => a.capacidad >= estudiantes)
-        .slice(0, Math.ceil(estudiantes / 120)); // ejemplo: 1 aula grande
 
-      const pisos = [...new Set(aulasAsignadas.map(a => a.piso.replace('Piso ', '')))];
-      const aulas = aulasAsignadas.map(a => a.nombre.replace('Aula ', ''));
-      const capacidades = aulasAsignadas.map(a => a.capacidad);
+      // Filtrar todas las aulas que pueden contener al grupo
+      const aulasCompatibles = aulasDisponibles.filter(a => a.capacidad >= estudiantes);
+
+      const pisos = [...new Set(aulasCompatibles.map(a => a.piso.replace('Piso ', '')))];
+      const aulas = aulasCompatibles.map(a => a.nombre.replace('Aula ', ''));
+      const capacidades = aulasCompatibles.map(a => a.capacidad);
 
       return {
         key: `${idx}-${i}`,
@@ -53,7 +53,7 @@ export default function MatrizInicial({ materias, modulos, horarios }) {
 
   return (
     <div style={{ marginTop: 40 }}>
-      <h2>Resumen de Asignación</h2>
+      <h2>POSIBLES ASIGNACIONES</h2>
       <Table columns={columnas} dataSource={rows} pagination={false} bordered />
     </div>
   );

@@ -1,69 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Input, Modal, Typography, Space } from 'antd';
 
-export default function CrearModulo() {
-  const [modulos, setModulos] = useState([
-    {
-      nombre: 'FICCT',
-      pisos: [
-        {
-          nombre: 'Piso 5',
-          aulas: [
-            { nombre: 'Aula 15', capacidad: '120' },
-            { nombre: 'Aula 16', capacidad: '120' },
-          ]
-        },
-        {
-          nombre: 'Piso 4',
-          aulas: [
-            { nombre: 'Aula 12', capacidad: '60' },
-            { nombre: 'Aula 13', capacidad: '60' },
-            { nombre: 'Aula 14', capacidad: '40' },
-          ]
-        },
-        {
-          nombre: 'Piso 3',
-          aulas: [
-            { nombre: 'Aula 9', capacidad: '60' },
-            { nombre: 'Aula 10', capacidad: '60' },
-            { nombre: 'Aula 11', capacidad: '40' },
-          ]
-        },
-        {
-          nombre: 'Piso 2',
-          aulas: [
-            { nombre: 'Aula 5', capacidad: '45' },
-            { nombre: 'Aula 6', capacidad: '45' },
-            { nombre: 'Aula 7', capacidad: '60' },
-            { nombre: 'Aula 8', capacidad: '30' },
-          ]
-        },
-        {
-          nombre: 'Piso 1',
-          aulas: [
-            { nombre: 'Aula 1', capacidad: '45' },
-            { nombre: 'Aula 2', capacidad: '45' },
-            { nombre: 'Aula 3', capacidad: '60' },
-            { nombre: 'Aula 4', capacidad: '30' },
-          ]
-        }
-      ]
-    }
-  ]);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [nombreModulo, setNombreModulo] = useState('');
+export default function CrearModulo({ modulos, setModulos }) {
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [nombreModulo, setNombreModulo] = React.useState('');
 
-  const [editandoModuloIndex, setEditandoModuloIndex] = useState(null);
-  const [modalEditarModulo, setModalEditarModulo] = useState(false);
+  const [editandoModuloIndex, setEditandoModuloIndex] = React.useState(null);
+  const [modalEditarModulo, setModalEditarModulo] = React.useState(false);
 
-  const [aulaSeleccionada, setAulaSeleccionada] = useState(null);
-  const [modalAulaVisible, setModalAulaVisible] = useState(false);
-  const [nuevoNombreAula, setNuevoNombreAula] = useState('');
-  const [capacidadAula, setCapacidadAula] = useState('');
+  const [aulaSeleccionada, setAulaSeleccionada] = React.useState(null);
+  const [modalAulaVisible, setModalAulaVisible] = React.useState(false);
+  const [nuevoNombreAula, setNuevoNombreAula] = React.useState('');
+  const [capacidadAula, setCapacidadAula] = React.useState('');
 
-  
-    const crearModulo = () => {
+  const crearModulo = () => {
     if (nombreModulo.trim() === '') return;
     const nuevoModulo = {
       nombre: nombreModulo.trim(),
@@ -73,9 +23,6 @@ export default function CrearModulo() {
     setNombreModulo('');
     setIsModalOpen(false);
   };
-
-
-  
 
   const abrirModalEditarModulo = (index) => {
     setEditandoModuloIndex(index);
@@ -118,8 +65,11 @@ export default function CrearModulo() {
   const agregarAula = (moduloIndex, pisoIndex) => {
     const nuevosModulos = [...modulos];
     const piso = nuevosModulos[moduloIndex].pisos[pisoIndex];
+    const totalAulasPrevias = nuevosModulos[moduloIndex].pisos
+      .slice(pisoIndex + 1)
+      .reduce((sum, p) => sum + p.aulas.length, 0);
     const nuevaAula = {
-      nombre: `Aula ${piso.aulas.length + 1}`,
+      nombre: `Aula ${totalAulasPrevias + piso.aulas.length + 1}`,
       capacidad: null,
     };
     piso.aulas.push(nuevaAula);
@@ -163,7 +113,6 @@ export default function CrearModulo() {
         Crear Módulo
       </Button>
 
-      {/* Modal Crear */}
       <Modal
         title="Crear nuevo módulo"
         open={isModalOpen}
@@ -179,7 +128,6 @@ export default function CrearModulo() {
         />
       </Modal>
 
-      {/* Modal Editar Módulo */}
       <Modal
         title="Editar Módulo"
         open={modalEditarModulo}
@@ -195,7 +143,6 @@ export default function CrearModulo() {
         />
       </Modal>
 
-      {/* Modal Editar Aula */}
       <Modal
         title="Editar Aula"
         open={modalAulaVisible}
@@ -226,7 +173,6 @@ export default function CrearModulo() {
         />
       </Modal>
 
-      {/* Módulos */}
       <div style={{ marginTop: 32, display: 'flex', gap: 20, flexWrap: 'wrap' }}>
         {modulos.map((modulo, mIndex) => {
           const totalAulas = modulo.pisos.reduce((sum, piso) => sum + piso.aulas.length, 0);
@@ -251,7 +197,6 @@ export default function CrearModulo() {
                 backgroundColor: '#fafafa',
               }}
             >
-              {/* Título + acciones */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <Typography.Title level={5} style={{ margin: 0 }}>{modulo.nombre}</Typography.Title>
                 <Space>
@@ -325,7 +270,6 @@ export default function CrearModulo() {
                   );
                 })}
 
-                {/* Resumen por módulo */}
                 <div style={{ marginTop: 12, paddingTop: 8, borderTop: '1px dashed #ccc', fontSize: 13 }}>
                   <div><strong>Total de pisos:</strong> {modulo.pisos.length}</div>
                   <div><strong>Total de aulas:</strong> {totalAulas}</div>
