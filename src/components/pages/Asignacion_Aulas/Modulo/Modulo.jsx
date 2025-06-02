@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import CrearModulo from './CrearModulo';
 import GrupoMateria from './GrupoMateria';
-import Horarios from './horarios';
-import MatrizInicial from './MatrizInicial';
+import Horarios from './Horarios';
+import MatrizGeneral from './MatrizGeneral';
+import MatrizReducida from './MatrizReducida';
+import Paso1 from './Paso1';
 
 export default function Modulo() {
   const [horarios, setHorarios] = useState([
@@ -64,34 +66,48 @@ export default function Modulo() {
   ]);
 
   const [materias, setMaterias] = useState([
-    {
-      nombre: 'Cálculo I',
-      grupos: [{ nombre: 'Grupo 1', estudiantes: '35' }],
-    },
-    {
-      nombre: 'Física I',
-      grupos: [{ nombre: 'Grupo 2', estudiantes: '50' }],
-    },
-    {
-      nombre: 'Introducción a la Ingeniería',
-      grupos: [{ nombre: 'Grupo 3', estudiantes: '120' }],
-    },
-    {
-      nombre: 'Redes I',
-      grupos: [{ nombre: 'Grupo 4', estudiantes: '40' }],
-    },
-    {
-      nombre: 'Álgebra Lineal',
-      grupos: [{ nombre: 'Grupo 5', estudiantes: '60' }],
-    },
+    { nombre: 'Cálculo I', grupos: [{ nombre: 'Grupo 1', estudiantes: '35' }] },
+    { nombre: 'Física I', grupos: [{ nombre: 'Grupo 2', estudiantes: '50' }] },
+    { nombre: 'Introducción a la Ingeniería', grupos: [{ nombre: 'Grupo 3', estudiantes: '120' }] },
+    { nombre: 'Redes I', grupos: [{ nombre: 'Grupo 4', estudiantes: '40' }] },
+    { nombre: 'Álgebra Lineal', grupos: [{ nombre: 'Grupo 5', estudiantes: '60' }] },
   ]);
+
+  const [matrizReducida, setMatrizReducida] = useState([]);
+  const [nombresFilas, setNombresFilas] = useState([]);
+  const [nombresColumnas, setNombresColumnas] = useState([]);
 
   return (
     <div>
       <CrearModulo modulos={modulos} setModulos={setModulos} />
       <GrupoMateria materias={materias} setMaterias={setMaterias} />
       <Horarios horarios={horarios} setHorarios={setHorarios} />
-      <MatrizInicial materias={materias} modulos={modulos} horarios={horarios} />
+
+      <MatrizGeneral
+        materias={materias}
+        modulos={modulos}
+        horarios={horarios}
+        onDataReady={() => {}}
+      />
+
+      <MatrizReducida
+        materias={materias}
+        modulos={modulos}
+        onDataReady={(matriz) => setMatrizReducida(matriz)}
+      />
+
+      {matrizReducida.length > 0 && (
+        <Paso1
+          matrizReducida={matrizReducida}
+          materias={materias}
+          modulos={modulos}
+          onResolved={(matrizCuadrada, filas, columnas) => {
+            console.log('✅ Matriz simétrica lista:', matrizCuadrada);
+            setNombresFilas(filas);
+            setNombresColumnas(columnas);
+          }}
+        />
+      )}
     </div>
   );
 }

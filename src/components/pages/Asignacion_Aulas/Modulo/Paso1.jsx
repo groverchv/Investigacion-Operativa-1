@@ -1,0 +1,147 @@
+'use client';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { Table, Modal, Button } from 'antd';
+import { ExpandOutlined } from '@ant-design/icons';
+
+export default function Paso1({ matrizReducida = [], materias = [], modulos = [], onResolved }) {
+  const [modalVisible, setModalVisible] = useState(false);
+  const prevMatriz = useRef([]);
+
+  const { columnas, filas, matrizFinal } = useMemo(() => {
+    const numFilas = matrizReducida.length;
+    const numCols = matrizReducida[0]?.length || 0;
+    const size = Math.max(numFilas, numCols);
+
+    const nombresFilas = materias.flatMap(materia =>
+      materia.grupos.map(grupo => ({
+        materia: materia.nombre,
+        grupo: grupo.nombre.replace('Grupo ', ''),
+        estudiantes: grupo.estudiantes
+      }))
+    );
+
+    const nombresColumnas = modulos.flatMap(mod =>
+      mod.pisos
+        .sort((a, b) => parseInt(a.nombre.replace('Piso ', '')) - parseInt(b.nombre.replace('Piso ', '')))
+        .flatMap(piso =>
+          piso.aulas.map(aula =>
+            `A${aula.nombre.replace('Aula ', '')} = ${piso.nombre}`
+          )
+        )
+    );
+
+    const columnasBase = Array.from({ length: size }, (_, j) => {
+      const isReal = j < numCols;
+      const nombre = nombresColumnas[j] || `Aula ${j + 1}`;
+      const [aula, piso] = nombre.split('=').map(s => s?.trim());
+
+      return {
+        title: isReal ? (
+          <div style={{ textAlign: 'center' }}>
+            <strong>{aula}</strong><br />
+            <span>= {piso}</span>
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center' }}>
+            <strong>Ficticia</strong><br />
+            <span>(extra)</span>
+          </div>
+        ),
+        dataIndex: `aula${j + 1}`,
+        key: `aula${j + 1}`,
+        align: 'center',
+        render: (valor) => (
+          <span style={{ color: valor === 1000 ? 'red' : 'black' }}>{valor}</span>
+        ),
+      };
+    });
+
+    const filasBase = Array.from({ length: size }, (_, i) => {
+      const isReal = i < numFilas;
+      const fila = {
+        key: `fila_${i}`,
+        materiaGrupo: isReal ? (
+          <div>
+            <strong>{nombresFilas[i]?.materia || `Materia ${i + 1}`}</strong><br />
+            Grupo {nombresFilas[i]?.grupo || '?'} = {nombresFilas[i]?.estudiantes || '?'}
+          </div>
+        ) : (
+          <div>
+            <strong>—</strong><br />
+            Grupo ficticio
+          </div>
+        ),
+      };
+
+      for (let j = 0; j < size; j++) {
+        fila[`aula${j + 1}`] = matrizReducida[i]?.[j] ?? 0;
+      }
+
+      return fila;
+    });
+
+    const nuevaMatriz = filasBase.map(fila =>
+      columnasBase.map(col => fila[col.dataIndex])
+    );
+
+    return {
+      columnas: [
+        {
+          title: 'MATERIA / Grupo',
+          dataIndex: 'materiaGrupo',
+          key: 'materiaGrupo',
+          fixed: 'left',
+        },
+        ...columnasBase
+      ],
+      filas: filasBase,
+      matrizFinal: nuevaMatriz
+    };
+  }, [JSON.stringify(matrizReducida), JSON.stringify(materias), JSON.stringify(modulos)]);
+
+  useEffect(() => {
+    const nuevaMatrizStr = JSON.stringify(matrizFinal);
+    if (prevMatriz.current !== nuevaMatrizStr) {
+      prevMatriz.current = nuevaMatrizStr;
+      onResolved?.(matrizFinal);
+    }
+  }, [matrizFinal, onResolved]);
+
+  return (
+    <div style={{ marginTop: 40 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2>PASO 1: MATRIZ SIMÉTRICA (con Ficticios)</h2>
+        <Button icon={<ExpandOutlined />} onClick={() => setModalVisible(true)}>
+          Ver completo
+        </Button>
+      </div>
+
+      <Table
+        columns={columnas}
+        dataSource={filas}
+        bordered
+        pagination={false}
+        scroll={{ x: 'max-content' }}
+        rowKey="key"
+      />
+
+      <Modal
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={null}
+        width="90%"
+        style={{ top: 20 }}
+        title="Paso 1 - Vista ampliada"
+      >
+        <Table
+          columns={columnas}
+          dataSource={filas}
+          bordered
+          pagination={false}
+          scroll={{ x: 'max-content' }}
+          rowKey="key"
+        />
+      </Modal>
+    </div>
+  );
+}
