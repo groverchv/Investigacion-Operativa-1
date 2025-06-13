@@ -3,18 +3,32 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Table, Modal, Button } from 'antd';
 import { ExpandOutlined } from '@ant-design/icons';
 
-const styles = ``;
+const styles = `
+  .fila-tachada td:not(:first-child) {
+    background-color: #39ff14 !important;
+  }
+
+  .columna-tachada {
+    background-color: #39ff14 !important;
+  }
+
+  .celda {
+    position: relative;
+  }
+`;
 
 function encontrarAsignaciones(ceros) {
   const n = ceros.length;
-  const asignaciones = Array(n).fill(-1);
+  const asignado = Array(n).fill(-1); // asignado[col] = fila que la usa
+  const asignaciones = Array(n).fill(-1); // asignaciones[fila] = columna asignada
 
-  function puedeAsignar(i, visitado, asignado) {
-    for (let j = 0; j < n; j++) {
-      if (ceros[i][j] && !visitado[j]) {
-        visitado[j] = true;
-        if (asignado[j] === -1 || puedeAsignar(asignado[j], visitado, asignado)) {
-          asignado[j] = i;
+  function dfs(fila, visitado) {
+    for (let col = 0; col < n; col++) {
+      if (ceros[fila][col] && !visitado[col]) {
+        visitado[col] = true;
+        if (asignado[col] === -1 || dfs(asignado[col], visitado)) {
+          asignado[col] = fila;
+          asignaciones[fila] = col;
           return true;
         }
       }
@@ -22,31 +36,35 @@ function encontrarAsignaciones(ceros) {
     return false;
   }
 
-  const asignado = Array(n).fill(-1);
-  for (let i = 0; i < n; i++) {
+  for (let fila = 0; fila < n; fila++) {
     const visitado = Array(n).fill(false);
-    puedeAsignar(i, visitado, asignado);
+    dfs(fila, visitado);
   }
-
-  asignado.forEach((fila, col) => {
-    if (fila !== -1) asignaciones[fila] = col;
-  });
 
   return asignaciones;
 }
 
-export default function Paso5({
-  matriz = [],
-  nombresFilas = [],
-  nombresColumnas = [],
-  umbralFicticio = 1000,
-  onResolved
-}) {
+export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas = [], umbralFicticio = 1000, onResolved }) {
   const [modalVisible, setModalVisible] = useState(false);
 
-  const { matrizFinal, columnas, filas } = useMemo(() => {
+  const {
+    matrizFinal,
+    columnas,
+    filas,
+    filasCubiertas,
+    columnasCubiertas,
+    totalFilasTachadas,
+    totalColumnasTachadas,
+    totalLineas,
+    cumple
+  } = useMemo(() => {
     const size = matriz.length;
-    if (size === 0) return { matrizFinal: [], columnas: [], filas: [] };
+    if (size === 0) {
+      return {
+        matrizFinal: [], columnas: [], filas: [], filasCubiertas: [], columnasCubiertas: [],
+        totalFilasTachadas: 0, totalColumnasTachadas: 0, totalLineas: 0, cumple: false
+      };
+    }
 
     const ceros = matriz.map(fila => fila.map(val => val === 0 && val < umbralFicticio ? 1 : 0));
     const asignaciones = encontrarAsignaciones(ceros);
@@ -54,8 +72,11 @@ export default function Paso5({
     const marcadasFilas = Array(size).fill(false);
     const marcadasColumnas = Array(size).fill(false);
 
+    // Fila no asignada → marcar fila
     for (let i = 0; i < size; i++) {
-      if (asignaciones[i] === -1) marcadasFilas[i] = true;
+      if (asignaciones[i] === -1) {
+        marcadasFilas[i] = true;
+      }
     }
 
     let cambio;
@@ -71,6 +92,7 @@ export default function Paso5({
           }
         }
       }
+
       for (let j = 0; j < size; j++) {
         if (marcadasColumnas[j]) {
           for (let i = 0; i < size; i++) {
@@ -86,6 +108,11 @@ export default function Paso5({
     const filasCubiertas = marcadasFilas.map(v => !v);
     const columnasCubiertas = marcadasColumnas;
 
+    const totalFilasTachadas = filasCubiertas.filter(Boolean).length;
+    const totalColumnasTachadas = columnasCubiertas.filter(Boolean).length;
+    const totalLineas = totalFilasTachadas + totalColumnasTachadas;
+    const cumple = totalLineas === size;
+
     const columnas = [
       {
         title: 'MATERIA / Grupo',
@@ -99,12 +126,12 @@ export default function Paso5({
 
         return {
           title: j < nombresColumnas.length ? (
-            <div className="text-center">
+            <div style={{ textAlign: 'center' }}>
               <strong>{aula}</strong><br />
               <span>= {piso}</span>
             </div>
           ) : (
-            <div className="text-center">
+            <div style={{ textAlign: 'center' }}>
               <strong>Ficticia</strong><br />
               <span>(extra)</span>
             </div>
@@ -112,14 +139,7 @@ export default function Paso5({
           dataIndex: `aula${j + 1}`,
           key: `aula${j + 1}`,
           align: 'center',
-          onCell: (_record, rowIndex) => {
-            const intersecta = filasCubiertas[rowIndex] && columnasCubiertas[j];
-            return {
-              className: columnasCubiertas[j]
-                ? `relative after:absolute after:top-0 after:left-1/2 after:-translate-x-1/2 after:h-full after:w-[2px] after:bg-red-600 ${intersecta ? 'before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-[6px] before:h-[2px] before:bg-red-600' : ''}`
-                : '',
-            };
-          },
+          onCell: () => ({ className: columnasCubiertas[j] ? 'columna-tachada' : '' })
         };
       })
     ];
@@ -136,34 +156,46 @@ export default function Paso5({
         ) : (
           <div><strong>—</strong><br />Grupo ficticio</div>
         ),
-        className: filasCubiertas[i]
-          ? 'relative after:absolute after:left-0 after:top-1/2 after:-translate-y-1/2 after:w-full after:h-[2px] after:bg-red-600'
-          : '',
+        className: filasCubiertas[i] ? 'fila-tachada' : ''
       };
 
       fila.forEach((valor, j) => {
+        const isFicticio = valor >= umbralFicticio;
         filaObj[`aula${j + 1}`] = (
-          <div className={`celda ${valor >= umbralFicticio ? 'text-red-500' : ''}`}>
-            {valor}
-          </div>
+          <div className={`celda ${isFicticio ? 'ficticio' : ''}`}>{valor}</div>
         );
       });
 
       return filaObj;
     });
 
-    return { matrizFinal: matriz, columnas, filas };
+    return {
+      matrizFinal: matriz,
+      columnas,
+      filas,
+      filasCubiertas,
+      columnasCubiertas,
+      totalFilasTachadas,
+      totalColumnasTachadas,
+      totalLineas,
+      cumple
+    };
   }, [JSON.stringify(matriz), JSON.stringify(nombresFilas), JSON.stringify(nombresColumnas), umbralFicticio]);
 
   useEffect(() => {
-    onResolved?.(matrizFinal);
-  }, [matrizFinal, onResolved]);
+    onResolved?.({
+      matriz: matrizFinal,
+      filasCubiertas,
+      columnasCubiertas,
+      cumple
+    });
+  }, [matrizFinal, filasCubiertas, columnasCubiertas, cumple, onResolved]);
 
   return (
-    <div className="mt-10">
+    <div style={{ marginTop: 40 }}>
       <style>{styles}</style>
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">PASO 5: Cubrir ceros con líneas</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2>PASO 5: Cubrir ceros con líneas</h2>
         <Button icon={<ExpandOutlined />} onClick={() => setModalVisible(true)}>
           Ver completo
         </Button>
@@ -178,6 +210,24 @@ export default function Paso5({
         scroll={{ x: 'max-content' }}
         rowClassName={(record) => record.className || ''}
       />
+
+      <div style={{ marginTop: 20 }}>
+        <p><strong>Total de filas tachadas:</strong> {totalFilasTachadas}</p>
+        <p><strong>Total de columnas tachadas:</strong> {totalColumnasTachadas}</p>
+        <p><strong>Total de líneas usadas:</strong> {totalLineas}</p>
+        <p>
+          <strong>Resultado:</strong>{' '}
+          {cumple ? (
+            <span style={{ color: 'green', fontWeight: 'bold' }}>
+              ✅ Cumple: podemos empezar a realizar asignaciones.
+            </span>
+          ) : (
+            <span style={{ color: 'red', fontWeight: 'bold' }}>
+              ❌ No cumple: se deben encontrar más ceros.
+            </span>
+          )}
+        </p>
+      </div>
 
       <Modal
         open={modalVisible}

@@ -7,7 +7,7 @@ export default function Paso1({ matrizReducida = [], materias = [], modulos = []
   const [modalVisible, setModalVisible] = useState(false);
   const prevMatriz = useRef([]);
 
-  const { columnas, filas, matrizFinal } = useMemo(() => {
+  const { columnas, filas, matrizFinal, nombresFilas, nombresColumnas } = useMemo(() => {
     const numFilas = matrizReducida.length;
     const numCols = matrizReducida[0]?.length || 0;
     const size = Math.max(numFilas, numCols);
@@ -95,7 +95,9 @@ export default function Paso1({ matrizReducida = [], materias = [], modulos = []
         ...columnasBase
       ],
       filas: filasBase,
-      matrizFinal: nuevaMatriz
+      matrizFinal: nuevaMatriz,
+      nombresFilas,
+      nombresColumnas
     };
   }, [JSON.stringify(matrizReducida), JSON.stringify(materias), JSON.stringify(modulos)]);
 
@@ -103,9 +105,9 @@ export default function Paso1({ matrizReducida = [], materias = [], modulos = []
     const nuevaMatrizStr = JSON.stringify(matrizFinal);
     if (prevMatriz.current !== nuevaMatrizStr) {
       prevMatriz.current = nuevaMatrizStr;
-      onResolved?.(matrizFinal);
+      onResolved?.(matrizFinal, nombresFilas, nombresColumnas);
     }
-  }, [matrizFinal, onResolved]);
+  }, [matrizFinal, nombresFilas, nombresColumnas, onResolved]);
 
   return (
     <div style={{ marginTop: 40 }}>
