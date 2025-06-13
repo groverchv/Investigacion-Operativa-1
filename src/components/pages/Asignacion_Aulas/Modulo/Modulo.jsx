@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import CrearModulo from "./CrearModulo";
 import GrupoMateria from "./GrupoMateria";
-import Horarios from "./Horarios";
 import MatrizGeneral from "./MatrizGeneral";
 import MatrizReducida from "./MatrizReducida";
 import Paso1 from "./Paso1";
@@ -15,14 +14,7 @@ import Paso7 from "./Paso7";
 import Asignar from "./Asignar";
 
 export default function Modulo() {
-  const [horarios, setHorarios] = useState([
-    { inicio: "07:00", fin: "09:15" },
-    { inicio: "09:15", fin: "11:30" },
-    { inicio: "11:30", fin: "13:45" },
-    { inicio: "14:00", fin: "16:15" },
-    { inicio: "16:15", fin: "18:30" },
-    { inicio: "18:30", fin: "20:45" },
-  ]);
+  
 
   const [modulos, setModulos] = useState([
     {
@@ -110,8 +102,8 @@ export default function Modulo() {
     <div>
       <CrearModulo modulos={modulos} setModulos={setModulos} />
       <GrupoMateria materias={materias} setMaterias={setMaterias} />
-      <Horarios horarios={horarios} setHorarios={setHorarios} />
-      <MatrizGeneral materias={materias} modulos={modulos} horarios={horarios} onDataReady={() => {}} />
+     
+      <MatrizGeneral materias={materias} modulos={modulos}  onDataReady={() => {}} />
       <MatrizReducida materias={materias} modulos={modulos} onDataReady={setMatrizReducida} />
 
       {matrizReducida.length > 0 && (

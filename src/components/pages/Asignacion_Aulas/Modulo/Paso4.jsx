@@ -1,7 +1,7 @@
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Table, Modal, Button } from 'antd';
-import { ExpandOutlined } from '@ant-design/icons';
+import React, { useEffect, useMemo } from 'react';
+import Tabla from './Modal/tabla';
+
 
 export default function Paso4({
   matriz = [],
@@ -10,17 +10,15 @@ export default function Paso4({
   umbralFicticio = 1000,
   onResolved
 }) {
-  const [modalVisible, setModalVisible] = useState(false);
-
   const { nuevaMatriz, columnas, filas } = useMemo(() => {
     if (!matriz.length) return { nuevaMatriz: [], columnas: [], filas: [] };
 
     const size = matriz.length;
 
-    // Transponer la matriz para operar sobre columnas
+    // Transposición para operar por columnas
     const transpuesta = matriz[0].map((_, j) => matriz.map(fila => fila[j]));
 
-    // Reducción por columna (restando el mínimo incluso al valor ficticio)
+    // Reducción por columnas
     const columnasReducidas = transpuesta.map(col => {
       const reales = col.filter(v => v < umbralFicticio);
       const min = reales.length ? Math.min(...reales) : 0;
@@ -96,40 +94,10 @@ export default function Paso4({
   }, [nuevaMatriz, onResolved]);
 
   return (
-    <div style={{ marginTop: 40 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>PASO 4: Reducción por Columnas</h2>
-        <Button icon={<ExpandOutlined />} onClick={() => setModalVisible(true)}>
-          Ver completo
-        </Button>
-      </div>
-
-      <Table
-        columns={columnas}
-        dataSource={filas}
-        bordered
-        pagination={false}
-        rowKey="key"
-        scroll={{ x: 'max-content' }}
-      />
-
-      <Modal
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
-        width="90%"
-        style={{ top: 20 }}
-        title="Paso 4 - Vista ampliada"
-      >
-        <Table
-          columns={columnas}
-          dataSource={filas}
-          bordered
-          pagination={false}
-          scroll={{ x: 'max-content' }}
-          rowKey="key"
-        />
-      </Modal>
-    </div>
+    <Tabla
+      columnas={columnas}
+      filas={filas}
+      titulo="PASO 4: Reducción por Columnas"
+    />
   );
 }

@@ -1,6 +1,8 @@
 'use client';
 import React, { useMemo, useEffect } from 'react';
-import { Table, Typography } from 'antd';
+import { Typography } from 'antd';
+import Tabla from './Modal/tabla';
+
 
 export default function Paso6({
   matriz,
@@ -92,7 +94,7 @@ export default function Paso6({
       ]
     : [];
 
-  const data = matrizAjustada.map((fila, i) => {
+  const filas = matrizAjustada.map((fila, i) => {
     const isReal = i < nombresFilas.length;
     const row = {
       key: i,
@@ -116,6 +118,7 @@ export default function Paso6({
   return (
     <div style={{ marginTop: 40 }}>
       <style>{styles}</style>
+
       <Typography.Title level={4}>PASO 6: Hallar más ceros</Typography.Title>
       <p>
         El menor número encontrado en las celdas no cubiertas es <strong>{minimo}</strong>.
@@ -125,12 +128,10 @@ export default function Paso6({
         <span style={{ backgroundColor: '#39ff14', padding: '2px 4px' }}>🟩 Verde</span>: valor no cambió.
       </p>
 
-      <Table
-        columns={columnas}
-        dataSource={data}
-        bordered
-        pagination={false}
-        scroll={{ x: 'max-content' }}
+      <Tabla
+        columnas={columnas}
+        filas={filas}
+        titulo="PASO 6: Hallar más ceros"
       />
     </div>
   );

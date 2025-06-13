@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Modal, Button } from 'antd';
-import { ExpandOutlined } from '@ant-design/icons';
+'use client';
+import React, { useEffect } from 'react';
+import Tabla from './Modal/tabla';
 
-export default function MatrizGeneral({ materias, modulos, horarios, onDataReady }) {
-  const [modalVisible, setModalVisible] = useState(false);
 
+export default function MatrizGeneral({ materias, modulos, onDataReady }) {
   const aulasDisponibles = modulos
     .flatMap(modulo =>
       modulo.pisos
@@ -18,9 +17,7 @@ export default function MatrizGeneral({ materias, modulos, horarios, onDataReady
         )
     );
 
-  const bloques = horarios.map((_, index) => `${index + 1}`);
-
-  const rows = materias.flatMap((materia, idx) =>
+  const filas = materias.flatMap((materia, idx) =>
     materia.grupos.map((grupo, i) => {
       const estudiantes = parseInt(grupo.estudiantes);
       const aulasCompatibles = aulasDisponibles.filter(a => a.capacidad >= estudiantes);
@@ -36,16 +33,15 @@ export default function MatrizGeneral({ materias, modulos, horarios, onDataReady
         piso: pisos.join(', '),
         aula: aulas.join(', '),
         capacidad: capacidades.join(', '),
-        horario: bloques.join(', '),
       };
     })
   );
 
   useEffect(() => {
     if (onDataReady) {
-      onDataReady(rows);
+      onDataReady(filas);
     }
-  }, [rows, onDataReady]);
+  }, [filas, onDataReady]);
 
   const columnas = [
     { title: 'MATERIA', dataIndex: 'materia', key: 'materia' },
@@ -54,42 +50,13 @@ export default function MatrizGeneral({ materias, modulos, horarios, onDataReady
     { title: 'Piso', dataIndex: 'piso', key: 'piso' },
     { title: 'Aula', dataIndex: 'aula', key: 'aula' },
     { title: 'Capacidad', dataIndex: 'capacidad', key: 'capacidad' },
-    { title: 'Horario', dataIndex: 'horario', key: 'horario' },
   ];
 
   return (
-    <div style={{ marginTop: 40 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>POSIBLES ASIGNACIONES</h2>
-        <Button icon={<ExpandOutlined />} onClick={() => setModalVisible(true)}>
-          Ver completo
-        </Button>
-      </div>
-
-      <Table
-        columns={columnas}
-        dataSource={rows}
-        pagination={false}
-        bordered
-        scroll={{ x: 'max-content' }}
-      />
-
-      <Modal
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
-        width="90%"
-        style={{ top: 20 }}
-        title="Matriz completa - Vista ampliada"
-      >
-        <Table
-          columns={columnas}
-          dataSource={rows}
-          pagination={false}
-          bordered
-          scroll={{ x: 'max-content' }}
-        />
-      </Modal>
-    </div>
+    <Tabla
+      columnas={columnas}
+      filas={filas}
+      titulo="MATRIZ GENERAL - POSIBLES ASIGNACIONES"
+    />
   );
 }

@@ -1,7 +1,7 @@
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Table, Modal, Button } from 'antd';
-import { ExpandOutlined } from '@ant-design/icons';
+import React, { useEffect, useMemo } from 'react';
+import Tabla from './Modal/tabla';
+
 
 export default function Paso3({
   matriz = [],
@@ -10,11 +10,10 @@ export default function Paso3({
   umbralFicticio = 1000,
   onResolved
 }) {
-  const [modalVisible, setModalVisible] = useState(false);
-
   const { nuevaMatriz, columnas, filas } = useMemo(() => {
     if (!matriz.length) return { nuevaMatriz: [], columnas: [], filas: [] };
 
+    // Reducción por filas
     const nuevaMatriz = matriz.map(fila => {
       const reales = fila.filter(v => v < umbralFicticio);
       const min = reales.length ? Math.min(...reales) : 0;
@@ -90,40 +89,10 @@ export default function Paso3({
   }, [nuevaMatriz, onResolved]);
 
   return (
-    <div style={{ marginTop: 40 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>PASO 3: Reducción por Filas</h2>
-        <Button icon={<ExpandOutlined />} onClick={() => setModalVisible(true)}>
-          Ver completo
-        </Button>
-      </div>
-
-      <Table
-        columns={columnas}
-        dataSource={filas}
-        bordered
-        pagination={false}
-        rowKey="key"
-        scroll={{ x: 'max-content' }}
-      />
-
-      <Modal
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
-        width="90%"
-        style={{ top: 20 }}
-        title="Paso 3 - Vista ampliada"
-      >
-        <Table
-          columns={columnas}
-          dataSource={filas}
-          bordered
-          pagination={false}
-          scroll={{ x: 'max-content' }}
-          rowKey="key"
-        />
-      </Modal>
-    </div>
+    <Tabla
+      columnas={columnas}
+      filas={filas}
+      titulo="PASO 3: Reducción por Filas"
+    />
   );
 }

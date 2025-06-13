@@ -1,10 +1,9 @@
 'use client';
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { Table, Modal, Button } from 'antd';
-import { ExpandOutlined } from '@ant-design/icons';
+import Tabla from './Modal/tabla';
+
 
 export default function Paso1({ matrizReducida = [], materias = [], modulos = [], onResolved }) {
-  const [modalVisible, setModalVisible] = useState(false);
   const prevMatriz = useRef([]);
 
   const { columnas, filas, matrizFinal, nombresFilas, nombresColumnas } = useMemo(() => {
@@ -110,40 +109,10 @@ export default function Paso1({ matrizReducida = [], materias = [], modulos = []
   }, [matrizFinal, nombresFilas, nombresColumnas, onResolved]);
 
   return (
-    <div style={{ marginTop: 40 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>PASO 1: MATRIZ SIMÉTRICA (con Ficticios)</h2>
-        <Button icon={<ExpandOutlined />} onClick={() => setModalVisible(true)}>
-          Ver completo
-        </Button>
-      </div>
-
-      <Table
-        columns={columnas}
-        dataSource={filas}
-        bordered
-        pagination={false}
-        scroll={{ x: 'max-content' }}
-        rowKey="key"
-      />
-
-      <Modal
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
-        width="90%"
-        style={{ top: 20 }}
-        title="Paso 1 - Vista ampliada"
-      >
-        <Table
-          columns={columnas}
-          dataSource={filas}
-          bordered
-          pagination={false}
-          scroll={{ x: 'max-content' }}
-          rowKey="key"
-        />
-      </Modal>
-    </div>
+    <Tabla
+      columnas={columnas}
+      filas={filas}
+      titulo="PASO 1: MATRIZ SIMÉTRICA (con Ficticios)"
+    />
   );
 }

@@ -1,7 +1,6 @@
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Table, Modal, Button } from 'antd';
-import { ExpandOutlined } from '@ant-design/icons';
+import React, { useEffect, useMemo } from 'react';
+import Tabla from './Modal/tabla';
 
 const styles = `
   .fila-tachada td:not(:first-child) {
@@ -19,8 +18,8 @@ const styles = `
 
 function encontrarAsignaciones(ceros) {
   const n = ceros.length;
-  const asignado = Array(n).fill(-1); // asignado[col] = fila que la usa
-  const asignaciones = Array(n).fill(-1); // asignaciones[fila] = columna asignada
+  const asignado = Array(n).fill(-1);
+  const asignaciones = Array(n).fill(-1);
 
   function dfs(fila, visitado) {
     for (let col = 0; col < n; col++) {
@@ -45,8 +44,6 @@ function encontrarAsignaciones(ceros) {
 }
 
 export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas = [], umbralFicticio = 1000, onResolved }) {
-  const [modalVisible, setModalVisible] = useState(false);
-
   const {
     matrizFinal,
     columnas,
@@ -72,7 +69,6 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
     const marcadasFilas = Array(size).fill(false);
     const marcadasColumnas = Array(size).fill(false);
 
-    // Fila no asignada → marcar fila
     for (let i = 0; i < size; i++) {
       if (asignaciones[i] === -1) {
         marcadasFilas[i] = true;
@@ -192,24 +188,16 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
   }, [matrizFinal, filasCubiertas, columnasCubiertas, cumple, onResolved]);
 
   return (
-    <div style={{ marginTop: 40 }}>
+    <>
       <style>{styles}</style>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>PASO 5: Cubrir ceros con líneas</h2>
-        <Button icon={<ExpandOutlined />} onClick={() => setModalVisible(true)}>
-          Ver completo
-        </Button>
-      </div>
 
-      <Table
-        columns={columnas}
-        dataSource={filas}
-        bordered
-        pagination={false}
-        rowKey="key"
-        scroll={{ x: 'max-content' }}
-        rowClassName={(record) => record.className || ''}
-      />
+      <Tabla
+  columnas={columnas}
+  filas={filas}
+  titulo="PASO 5: Cubrir ceros con líneas"
+  rowClassName={(record) => record.className || ''}
+/>
+
 
       <div style={{ marginTop: 20 }}>
         <p><strong>Total de filas tachadas:</strong> {totalFilasTachadas}</p>
@@ -228,25 +216,6 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
           )}
         </p>
       </div>
-
-      <Modal
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
-        width="90%"
-        style={{ top: 20 }}
-        title="Paso 5 - Vista ampliada"
-      >
-        <Table
-          columns={columnas}
-          dataSource={filas}
-          bordered
-          pagination={false}
-          rowKey="key"
-          scroll={{ x: 'max-content' }}
-          rowClassName={(record) => record.className || ''}
-        />
-      </Modal>
-    </div>
+    </>
   );
 }
