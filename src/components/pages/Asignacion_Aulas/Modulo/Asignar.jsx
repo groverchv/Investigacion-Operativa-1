@@ -10,9 +10,11 @@ export default function Asignar({
   matrizPaso7 = [],
   nombresFilas = [],
   nombresColumnas = [],
+  onResolved = () => {}, // Prop para enviar los datos al padre
 }) {
   const [asignaciones, setAsignaciones] = useState([]);
   const [asignacionesLocales, setAsignacionesLocales] = useState([]);
+  const [prevDatosCompartir, setPrevDatosCompartir] = useState([]);
 
   useEffect(() => {
     if (!matrizPaso1.length || !matrizPaso7.length) return;
@@ -42,20 +44,38 @@ export default function Asignar({
       }
     }
 
-    const asignacionesValidas = locales
+    const datosCompartir = locales
       .map((colIndex, i) => {
         const fila = nombresFilas[i];
         const columna = nombresColumnas[colIndex];
         if (!fila?.materia || !fila?.grupo || !columna) return null;
         const [aula, piso] = columna.split("=").map((s) => s.trim());
         const capacidad = matrizPaso1?.[i]?.[colIndex] ?? "?";
-        return `Al grupo ${fila.grupo} de la materia "${fila.materia}" con ${fila.estudiantes} estudiantes se le asignó el aula ${aula} del ${piso} que tiene una capacidad de ${capacidad} personas.`;
+
+        return {
+          grupo: fila.grupo,
+          materia: fila.materia,
+          estudiantes: fila.estudiantes,
+          aula: aula,
+          piso: piso,
+          capacidad: capacidad,
+        };
       })
       .filter(Boolean);
 
-    setAsignaciones(asignacionesValidas);
-    setAsignacionesLocales(locales);
-  }, [matrizPaso1, matrizPaso7, nombresFilas, nombresColumnas]);
+    // Evitar llamar onResolved si los datos no cambiaron
+    if (JSON.stringify(prevDatosCompartir) !== JSON.stringify(datosCompartir)) {
+      setPrevDatosCompartir(datosCompartir);
+      setAsignaciones(
+        datosCompartir.map(
+          (d) =>
+            `Al grupo ${d.grupo} de la materia "${d.materia}" con ${d.estudiantes} estudiantes se le asignó el aula ${d.aula} del ${d.piso} que tiene una capacidad de ${d.capacidad} personas.`
+        )
+      );
+      setAsignacionesLocales(locales);
+      onResolved(datosCompartir);
+    }
+  }, [matrizPaso1, matrizPaso7, nombresFilas, nombresColumnas, onResolved, prevDatosCompartir]);
 
   const { columnas, filas } = useMemo(() => {
     const columnas = [
@@ -126,8 +146,6 @@ export default function Asignar({
 
   return (
     <div style={{ padding: 24 }}>
-      {/*<Title level={4}>📘 Matriz del Paso 7 (con ceros)</Title>
-      {renderTabla(matrizPaso7, 'paso7')}*/}
       <Title level={4}>📙 Matriz del Paso 1 (asignaciones y ceros)</Title>
 
       <Tabla

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import CrearHorario from './CrearHorario';
-
+import MatrizGeneral from './MatrizGeneral';
 
 export default function Horario() {
   const [horarios, setHorarios] = useState([
@@ -14,6 +14,9 @@ export default function Horario() {
   ]);
 
   return (
-    <CrearHorario horarios={horarios} setHorarios={setHorarios} />
+    <>
+      <CrearHorario horarios={horarios} setHorarios={setHorarios} />
+      <MatrizGeneral horarios={horarios} />
+    </>
   );
 }

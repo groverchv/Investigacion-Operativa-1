@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useState } from "react";
 import CrearModulo from "./CrearModulo";
 import GrupoMateria from "./GrupoMateria";
@@ -12,10 +12,11 @@ import Paso5 from "./Paso5";
 import Paso6 from "./Paso6";
 import Paso7 from "./Paso7";
 import Asignar from "./Asignar";
+import { useDatosCompartidos } from '../Horario/DatosContext'; // Ajusta el path si es necesario
+
 
 export default function Modulo() {
-  
-
+  const { setDatosCompartidos } = useDatosCompartidos();
   const [modulos, setModulos] = useState([
     {
       nombre: "FICCT",
@@ -97,14 +98,21 @@ export default function Modulo() {
   const [nombresFilas, setNombresFilas] = useState([]);
   const [nombresColumnas, setNombresColumnas] = useState([]);
 
-
   return (
     <div>
       <CrearModulo modulos={modulos} setModulos={setModulos} />
       <GrupoMateria materias={materias} setMaterias={setMaterias} />
-     
-      <MatrizGeneral materias={materias} modulos={modulos}  onDataReady={() => {}} />
-      <MatrizReducida materias={materias} modulos={modulos} onDataReady={setMatrizReducida} />
+
+      <MatrizGeneral
+        materias={materias}
+        modulos={modulos}
+        onDataReady={() => {}}
+      />
+      <MatrizReducida
+        materias={materias}
+        modulos={modulos}
+        onDataReady={setMatrizReducida}
+      />
 
       {matrizReducida.length > 0 && (
         <Paso1
@@ -155,7 +163,12 @@ export default function Modulo() {
           nombresFilas={nombresFilas}
           nombresColumnas={nombresColumnas}
           umbralFicticio={1000}
-          onResolved={({ matriz, filasCubiertas, columnasCubiertas, cumple }) => {
+          onResolved={({
+            matriz,
+            filasCubiertas,
+            columnasCubiertas,
+            cumple,
+          }) => {
             setMatrizPaso5(matriz);
             setFilasCubiertasPaso5(filasCubiertas);
             setColumnasCubiertasPaso5(columnasCubiertas);
@@ -175,33 +188,38 @@ export default function Modulo() {
         />
       )}
 
-{matrizPaso6.length > 0 && (
-  <Paso7
-    matriz={matrizPaso6}
-    nombresFilas={nombresFilas}
-    nombresColumnas={nombresColumnas}
-    umbralFicticio={1000}
-    onResolved={({ matriz, filasCubiertas, columnasCubiertas, cumple }) => {
-      setMatrizPaso7(matriz);
-      setFilasCubiertasPaso7(filasCubiertas);
-      setColumnasCubiertasPaso7(columnasCubiertas);
-      setCumplePaso7(cumple);
-    }}
-  />
-)}
+      {matrizPaso6.length > 0 && (
+        <Paso7
+          matriz={matrizPaso6}
+          nombresFilas={nombresFilas}
+          nombresColumnas={nombresColumnas}
+          umbralFicticio={1000}
+          onResolved={({
+            matriz,
+            filasCubiertas,
+            columnasCubiertas,
+            cumple,
+          }) => {
+            setMatrizPaso7(matriz);
+            setFilasCubiertasPaso7(filasCubiertas);
+            setColumnasCubiertasPaso7(columnasCubiertas);
+            setCumplePaso7(cumple);
+          }}
+        />
+      )}
 
-
-{matrizPaso1.length > 0 && matrizPaso7.length > 0 && (
-  <Asignar
-    matrizPaso1={matrizPaso1}
-    matrizPaso7={matrizPaso7}
-    nombresFilas={nombresFilas}
-    nombresColumnas={nombresColumnas}
-  />
-)}
-
-
-
+      {matrizPaso1.length > 0 && matrizPaso7.length > 0 && (
+        <Asignar
+          matrizPaso1={matrizPaso1}
+          matrizPaso7={matrizPaso7}
+          nombresFilas={nombresFilas}
+          nombresColumnas={nombresColumnas}
+          onResolved={(resultados) => {
+            console.log("Datos compartidos:", resultados);
+            setDatosCompartidos(resultados);
+          }}
+        />
+      )}
     </div>
   );
 }
