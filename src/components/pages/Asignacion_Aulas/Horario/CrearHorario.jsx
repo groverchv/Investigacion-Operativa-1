@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Modal, Typography, Space, TimePicker, message } from 'antd';
+import { Button, Modal, Typography, Space, TimePicker, InputNumber, message } from 'antd';
 import dayjs from 'dayjs';
 
 export default function CrearHorario({ horarios, setHorarios }) {
@@ -8,10 +8,12 @@ export default function CrearHorario({ horarios, setHorarios }) {
   const [editandoIndex, setEditandoIndex] = useState(null);
   const [inicio, setInicio] = useState(null);
   const [fin, setFin] = useState(null);
+  const [costo, setCosto] = useState(0);
 
   const abrirModalNuevo = () => {
     setInicio(dayjs('00:00', 'HH:mm'));
     setFin(dayjs('00:00', 'HH:mm'));
+    setCosto(0);
     setEditandoIndex(null);
     setModalVisible(true);
   };
@@ -20,6 +22,7 @@ export default function CrearHorario({ horarios, setHorarios }) {
     const bloque = horarios[index];
     setInicio(dayjs(bloque.inicio, 'HH:mm'));
     setFin(dayjs(bloque.fin, 'HH:mm'));
+    setCosto(bloque.costo || 0);
     setEditandoIndex(index);
     setModalVisible(true);
   };
@@ -30,6 +33,7 @@ export default function CrearHorario({ horarios, setHorarios }) {
     const nuevoBloque = {
       inicio: inicio.format('HH:mm'),
       fin: fin.format('HH:mm'),
+      costo: costo,
     };
 
     const nuevaLista = [...horarios];
@@ -64,8 +68,7 @@ export default function CrearHorario({ horarios, setHorarios }) {
           <li key={index} style={{ marginBottom: 12 }}>
             <Space>
               <span>
-                {index + 1}) {bloque.inicio} — {bloque.fin}{' '}
-                ({parseInt(bloque.inicio.split(':')[0], 10) < 12 ? 'AM' : 'PM'})
+                {index + 1}) {bloque.inicio} — {bloque.fin} | Costo: ${bloque.costo}
               </span>
               <Button size="small" onClick={() => abrirModalEditar(index)}>
                 Editar
@@ -103,6 +106,18 @@ export default function CrearHorario({ horarios, setHorarios }) {
               format="HH:mm"
               value={fin}
               onChange={(value) => setFin(value)}
+              style={{ width: '100%' }}
+            />
+          </div>
+
+          <div>
+            <label>Costo de atención:</label>
+            <InputNumber
+              min={0}
+              value={costo}
+              onChange={(value) => setCosto(value)}
+              formatter={(value) => `$ ${value}`}
+              parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
               style={{ width: '100%' }}
             />
           </div>

@@ -35,6 +35,7 @@ export default function Tabla({
           text-align: center;
           white-space: nowrap;
         }
+          
 
         .contenedor-scroll {
           overflow: auto;
@@ -43,6 +44,7 @@ export default function Tabla({
           -webkit-overflow-scrolling: touch;
         }
       `}</style>
+      
 
       {/* Encabezado */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

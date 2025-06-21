@@ -9,7 +9,7 @@ export default function MatrizGeneral({ horarios }) {
     {
       title: (
         <div>
-          HORARIOS <br />  <br /> MATERIAS
+          HORARIOS <br /> <br /> MATERIAS
         </div>
       ),
       dataIndex: 'materiaGrupo',
@@ -33,25 +33,27 @@ export default function MatrizGeneral({ horarios }) {
       key: index + 1,
       materiaGrupo: (
         <div>
-          <strong>{item.materia}</strong>
-          <br />
-          {`${item.aula}, ${item.piso} = ${item.capacidad}`}
+          <strong>{item.materia}</strong><br />
+          {`${item.grupo}, ${item.aula}, ${item.piso} = ${item.capacidad}`}
         </div>
-      ),
+      )
     };
 
-    horarios.forEach((_, hIndex) => {
-      fila[`H${hIndex + 1}`] = item.estudiantes;
+    horarios.forEach((h, hIndex) => {
+      const costoAtencion = Number(h.costo) || 0;
+      const estudiantes = Number(item.estudiantes) || 0;
+      const costoTotal = costoAtencion + estudiantes;
+      fila[`H${hIndex + 1}`] = `$${costoTotal}`;
     });
 
     return fila;
   });
 
   return (
-      <Tabla
-        columnas={columnas}
-        filas={filas}
-        titulo="Matriz General"
-      />
+    <Tabla
+      columnas={columnas}
+      filas={filas}
+      titulo="Matriz General"
+    />
   );
 }
