@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import Tabla from './Modal/tabla';
+import Tabla from '../Modal/tabla';
 
 
 export default function Paso1({ matrizReducida = [], materias = [], modulos = [], onResolved }) {

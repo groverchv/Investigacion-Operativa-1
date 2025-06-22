@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Tabla from './Modal/tabla'; // Ajusta según tu estructura
+import Tabla from '../Modal/tabla'; // Ajusta según tu estructura
 
 export default function Paso4({ columnasPaso3, filasPaso3, onResultado }) {
   const keysColumnas = columnasPaso3

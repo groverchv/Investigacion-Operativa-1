@@ -1,7 +1,7 @@
 'use client';
 import React, { useMemo, useEffect } from 'react';
 import { Typography } from 'antd';
-import Tabla from './Modal/tabla';
+import Tabla from '../Modal/tabla';
 
 
 export default function Paso6({

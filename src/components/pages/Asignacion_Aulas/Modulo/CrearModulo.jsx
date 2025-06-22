@@ -176,7 +176,7 @@ export default function CrearModulo({ modulos, setModulos }) {
       </Modal>
 
       <div
-        style={{ marginTop: 32, display: "flex", gap: 20, flexWrap: "wrap" }}
+        style={{ marginTop: 32, display: "flex", gap: 20, flexWrap: "wrap",justifyContent: "flex-start" }}
       >
         {modulos.map((modulo, mIndex) => {
           const totalAulas = modulo.pisos.reduce(

@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import {
   HomeOutlined,
-  FunctionOutlined,
-  ApartmentOutlined,
   AuditOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -29,19 +27,6 @@ const menuData = [
       { label: "Funcion", component: <Funcion /> },
     ],
   },
-  /*{
-    label: "Gran M",
-    icon: FunctionOutlined,
-    options: [
-      { label: "Método Gran M", component: <Gran_M /> },
-      { label: "Método", component: <Gran_M /> },
-    ],
-  },
-  {
-    label: "Dos Fases",
-    icon: ApartmentOutlined,
-    options: [{ label: "Método Dos Fases", component: <Dos_Fases /> }],
-  },*/
   {
     label: "Asignación Aula",
     icon: AuditOutlined,
@@ -60,7 +45,7 @@ const SidebarApp = () => {
   });
 
   const [currentComponent, setCurrentComponent] = useState(<Inicio />);
-  const [collapsed, setCollapsed] = useState(false); // Estado para el Sider
+  const [collapsed, setCollapsed] = useState(false);
 
   const items = [];
   const componentMap = {};
@@ -93,10 +78,11 @@ const SidebarApp = () => {
   };
 
   return (
-    <Layout>
+    <Layout style={{ minHeight: "100vh" }}>
       <Sider
         width={200}
         collapsible
+        collapsedWidth={48}
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
         style={{ background: colorBgContainer }}
@@ -106,23 +92,29 @@ const SidebarApp = () => {
           defaultSelectedKeys={["Inicio/Inicio General"]}
           defaultOpenKeys={["sub1"]}
           style={{ height: "100%", borderRight: 0 }}
+          inlineIndent={8}
           items={items}
           onClick={handleMenuClick}
         />
       </Sider>
 
-      <Layout style={{ padding: "0 24px 24px" }}>
+      <Layout>
         <Breadcrumb
-          style={{ margin: "16px 0" }}
+          style={{ margin: "16px 24px" }}
           items={[{ title: breadcrumb.subnav }, { title: breadcrumb.option }]}
         />
+
         <Content
           style={{
             padding: 24,
             margin: 0,
             minHeight: 280,
+            width: "100%",           // ✅ Que el Content use todo el espacio
+            maxWidth: "100%",        // ✅ Que no se limite a un ancho máximo
+            overflowX: "auto",       // ✅ Permitir scroll horizontal si el contenido es grande
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
+            boxSizing: "border-box",
           }}
         >
           {currentComponent}

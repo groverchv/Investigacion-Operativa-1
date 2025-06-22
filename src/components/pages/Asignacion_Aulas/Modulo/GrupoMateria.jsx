@@ -19,7 +19,6 @@ export default function GrupoMateria({ materias, setMaterias }) {
       nombre: nombreMateria.trim(),
       grupos: [],
     };
-
     setMaterias([...materias, nuevaMateria]);
     setNombreMateria("");
     setIsModalOpen(false);
@@ -97,7 +96,6 @@ export default function GrupoMateria({ materias, setMaterias }) {
         Crear Materia
       </Button>
 
-      {/* Modal para crear nueva materia */}
       <Modal
         title="Crear nueva materia"
         open={isModalOpen}
@@ -113,7 +111,6 @@ export default function GrupoMateria({ materias, setMaterias }) {
         />
       </Modal>
 
-      {/* Modal para editar nombre de materia */}
       <Modal
         title="Editar Materia"
         open={modalEditarMateria}
@@ -129,7 +126,6 @@ export default function GrupoMateria({ materias, setMaterias }) {
         />
       </Modal>
 
-      {/* Modal para editar grupo */}
       <Modal
         title="Editar Grupo"
         open={modalGrupoVisible}
@@ -181,16 +177,13 @@ export default function GrupoMateria({ materias, setMaterias }) {
                 backgroundColor: "#fafafa",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
+              <div style={{ marginBottom: 8 }}>
                 <Typography.Title level={5} style={{ margin: 0 }}>
                   {materia.nombre}
                 </Typography.Title>
+              </div>
+
+              <div style={{ marginBottom: 8 }}>
                 <Space>
                   <Button
                     size="small"
@@ -238,7 +231,6 @@ export default function GrupoMateria({ materias, setMaterias }) {
                   </div>
                 ))}
 
-                {/* Resumen por materia */}
                 <div
                   style={{
                     marginTop: 12,

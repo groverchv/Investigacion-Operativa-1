@@ -56,17 +56,34 @@ export default function CrearHorario({ horarios, setHorarios }) {
   };
 
   return (
-    <div style={{ padding: 24 }}>
-      <Typography.Title level={4}>Gestionar Horarios</Typography.Title>
+    <div style={{ padding: 16 }}>
+      <style>{`
+        @media (max-width: 600px) {
+          .crear-horario-title {
+            font-size: 16px !important;
+          }
+          .crear-horario-list span {
+            font-size: 12px !important;
+          }
+          .crear-horario-list button {
+            font-size: 10px !important;
+            padding: 0 4px !important;
+          }
+        }
+      `}</style>
+
+      <Typography.Title level={4} className="crear-horario-title">
+        Gestionar Horarios
+      </Typography.Title>
 
       <Button type="primary" onClick={abrirModalNuevo}>
         Crear Bloque Horario
       </Button>
 
-      <ul style={{ marginTop: 24, paddingLeft: 20 }}>
+      <ul className="crear-horario-list" style={{ marginTop: 24, paddingLeft: 16 }}>
         {horarios.map((bloque, index) => (
           <li key={index} style={{ marginBottom: 12 }}>
-            <Space>
+            <Space wrap>
               <span>
                 {index + 1}) {bloque.inicio} — {bloque.fin} | Costo: ${bloque.costo}
               </span>

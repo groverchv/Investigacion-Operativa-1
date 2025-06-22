@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
 import { Typography } from "antd";
-import Tabla from "./Modal/tabla";
+import Tabla from "../Modal/tabla";
 
 const { Title } = Typography;
 

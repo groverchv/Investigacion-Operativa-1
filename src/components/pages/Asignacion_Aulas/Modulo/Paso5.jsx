@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useMemo } from 'react';
-import Tabla from './Modal/tabla';
+import Tabla from '../Modal/tabla';
 
 const styles = `
   .fila-tachada td:not(:first-child) {

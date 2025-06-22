@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useMemo } from 'react';
-import Tabla from './Modal/tabla';
+import Tabla from '../Modal/tabla';
 
 
 export default function Paso4({

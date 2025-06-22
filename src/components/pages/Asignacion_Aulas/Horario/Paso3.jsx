@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Tabla from './Modal/tabla'; // Ajusta el path según tu estructura
+import Tabla from '../Modal/tabla'; // Ajusta el path según tu estructura
 
 export default function Paso3({ columnasPaso2, filasPaso2, onResultado }) {
   // Filtrar solo las claves de columnas (H1, H2, etc)
