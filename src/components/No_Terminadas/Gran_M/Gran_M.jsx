@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
-import Paso0 from "../Pasos_Iniciales/Paso0";
-import Paso1 from "../Pasos_Iniciales/Paso1";
-import Paso2 from "../Pasos_Iniciales/Paso2";
+import Paso0 from "../../No_Terminadas/Pasos_Iniciales/Paso0";
+import Paso1 from "../../No_Terminadas/Pasos_Iniciales/Paso1";
+import Paso2 from "../../No_Terminadas/Pasos_Iniciales/Paso2";
 import Paso3 from "./Paso3";
 import Paso4 from "./Paso4";
 import Paso5 from "./Paso5";
