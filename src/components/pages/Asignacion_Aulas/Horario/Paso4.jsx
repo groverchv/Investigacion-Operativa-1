@@ -1,7 +1,7 @@
-import React from 'react';
-import { Table } from 'antd';
+import React, { useEffect } from 'react';
+import Tabla from './Modal/tabla'; // Ajusta según tu estructura
 
-export default function Paso4({ columnasPaso3, filasPaso3 }) {
+export default function Paso4({ columnasPaso3, filasPaso3, onResultado }) {
   const keysColumnas = columnasPaso3
     .filter(col => col.dataIndex !== 'materiaGrupo')
     .map(col => col.dataIndex);
@@ -12,25 +12,23 @@ export default function Paso4({ columnasPaso3, filasPaso3 }) {
 
   const N = matriz.length;
 
-  // Paso húngaro: encontrar mínimo de rectas
-  const filasMarcadas = new Set();
+  // === Método A: húngaro simplificado ===
+  const filasMarcadasA = new Set();
   matriz.forEach((fila, i) => {
-    const tieneCero = fila.some(val => val === 0);
-    if (!tieneCero) {
-      filasMarcadas.add(i);
+    if (!fila.some(val => val === 0)) {
+      filasMarcadasA.add(i);
     }
   });
 
-  let columnasMarcadas = new Set();
+  let columnasMarcadasA = new Set();
   let cambiado = true;
-
   while (cambiado) {
     cambiado = false;
 
-    filasMarcadas.forEach(i => {
+    filasMarcadasA.forEach(i => {
       matriz[i].forEach((val, j) => {
-        if (val === 0 && !columnasMarcadas.has(j)) {
-          columnasMarcadas.add(j);
+        if (val === 0 && !columnasMarcadasA.has(j)) {
+          columnasMarcadasA.add(j);
           cambiado = true;
         }
       });
@@ -38,22 +36,44 @@ export default function Paso4({ columnasPaso3, filasPaso3 }) {
 
     matriz.forEach((fila, i) => {
       fila.forEach((val, j) => {
-        if (val === 0 && columnasMarcadas.has(j) && !filasMarcadas.has(i)) {
-          filasMarcadas.add(i);
+        if (val === 0 && columnasMarcadasA.has(j) && !filasMarcadasA.has(i)) {
+          filasMarcadasA.add(i);
           cambiado = true;
         }
       });
     });
   }
 
-  const filasConLinea = [];
+  const filasConLineaA = [];
   for (let i = 0; i < N; i++) {
-    if (!filasMarcadas.has(i)) {
-      filasConLinea.push(i);
+    if (!filasMarcadasA.has(i)) {
+      filasConLineaA.push(i);
     }
   }
+  const columnasConLineaA = Array.from(columnasMarcadasA);
+  const totalLineasA = filasConLineaA.length + columnasConLineaA.length;
 
-  const columnasConLinea = Array.from(columnasMarcadas);
+  // === Método B: filas/columnas con todos ceros ===
+  const filasConLineaB = matriz
+    .map((fila, i) => fila.every(val => val === 0) ? i : null)
+    .filter(i => i !== null);
+
+  const columnasConLineaB = keysColumnas
+    .map((_, j) => matriz.every(row => row[j] === 0) ? j : null)
+    .filter(j => j !== null);
+
+  const totalLineasB = filasConLineaB.length + columnasConLineaB.length;
+
+  // === Elegir mejor ===
+  const usarA = totalLineasA <= totalLineasB;
+
+  const filasConLinea = usarA ? filasConLineaA : filasConLineaB;
+  const columnasConLinea = usarA ? columnasConLineaA : columnasConLineaB;
+  const totalLineas = usarA ? totalLineasA : totalLineasB;
+
+  const cumple = totalLineas >= N
+    ? '✅ Cumple: podemos empezar a realizar asignaciones.'
+    : '❌ No cumple: se deben encontrar más ceros.';
 
   const filasRenderizadas = filasPaso3.map((fila, filaIndex) => {
     const nuevaFila = { ...fila };
@@ -76,25 +96,35 @@ export default function Paso4({ columnasPaso3, filasPaso3 }) {
     return nuevaFila;
   });
 
-  const totalLineas = filasConLinea.length + columnasConLinea.length;
-  const cumple = totalLineas >= N
-    ? '✅ Cumple: suficientes líneas para cubrir todos los ceros.'
-    : '❌ No cumple: se deben encontrar más ceros.';
+  // Enviar resultado al padre
+  useEffect(() => {
+    if (onResultado) {
+      onResultado({
+        filas: filasPaso3,
+        filasConLinea,
+        columnasConLinea
+      });
+    }
+  }, [filasPaso3, filasConLinea, columnasConLinea, onResultado]);
 
   return (
     <div style={{ padding: 24 }}>
-      <h2>Paso 4: Cubrir ceros con líneas (Mínimo de rectas)</h2>
-      <Table
-        columns={columnasPaso3}
-        dataSource={filasRenderizadas}
-        pagination={false}
-        bordered
+      <h2>Paso 4: Cubrir ceros con líneas (Comparando estrategias)</h2>
+      <Tabla
+        columnas={columnasPaso3}
+        filas={filasRenderizadas}
+        titulo="PASO 4: Cubrir ceros con líneas"
       />
       <div style={{ marginTop: '16px' }}>
         <p><strong>Total de filas tachadas:</strong> {filasConLinea.length}</p>
         <p><strong>Total de columnas tachadas:</strong> {columnasConLinea.length}</p>
         <p><strong>Total de líneas usadas:</strong> {totalLineas}</p>
-        <p style={{ color: cumple.includes('✅') ? 'green' : 'red' }}><strong>Resultado:</strong> {cumple}</p>
+        <p style={{ color: cumple.includes('✅') ? 'green' : 'red', fontWeight: 'bold' }}>
+          Resultado: {cumple}
+        </p>
+        <p style={{ fontStyle: 'italic' }}>
+          Estrategia usada: {usarA ? 'Método Húngaro simplificado' : 'Filas/columnas con puros ceros'}
+        </p>
       </div>
     </div>
   );
