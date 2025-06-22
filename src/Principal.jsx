@@ -26,7 +26,7 @@ const menuData = [
       { label: 'Integrantes', component: <Integrantes /> },
     ],
   },
-  {
+{/*  {
     label: 'Gran M',
     icon: FunctionOutlined,
     options: [
@@ -40,6 +40,7 @@ const menuData = [
       { label: 'Método Dos Fases', component: <Dos_Fases /> },
     ],
   },
+*/}
   {
     label: 'Asignación Aula',
     icon: AuditOutlined,

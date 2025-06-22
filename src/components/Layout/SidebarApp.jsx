@@ -4,8 +4,10 @@ import {
   FunctionOutlined,
   ApartmentOutlined,
   AuditOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from "@ant-design/icons";
-import { Menu, Layout, Breadcrumb, theme } from "antd";
+import { Menu, Layout, Breadcrumb, Button, theme } from "antd";
 
 // Componentes asociados
 import Gran_M from "../pages/Gran_M/Gran_M";
@@ -29,7 +31,7 @@ const menuData = [
       { label: "Funcion", component: <Funcion /> },
     ],
   },
-  {
+  /*{
     label: "Gran M",
     icon: FunctionOutlined,
     options: [
@@ -41,7 +43,7 @@ const menuData = [
     label: "Dos Fases",
     icon: ApartmentOutlined,
     options: [{ label: "Método Dos Fases", component: <Dos_Fases /> }],
-  },
+  },*/
   {
     label: "Asignación Aula",
     icon: AuditOutlined,
@@ -60,6 +62,7 @@ const SidebarApp = () => {
   });
 
   const [currentComponent, setCurrentComponent] = useState(<Inicio />);
+  const [collapsed, setCollapsed] = useState(false); // Estado para el Sider
 
   const items = [];
   const componentMap = {};
@@ -92,8 +95,14 @@ const SidebarApp = () => {
   };
 
   return (
-    <>
-      <Sider width={200} style={{ background: colorBgContainer }}>
+    <Layout>
+      <Sider
+        width={200}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={(value) => setCollapsed(value)}
+        style={{ background: colorBgContainer }}
+      >
         <Menu
           mode="inline"
           defaultSelectedKeys={["Inicio/Inicio General"]}
@@ -103,6 +112,7 @@ const SidebarApp = () => {
           onClick={handleMenuClick}
         />
       </Sider>
+
       <Layout style={{ padding: "0 24px 24px" }}>
         <Breadcrumb
           style={{ margin: "16px 0" }}
@@ -120,7 +130,7 @@ const SidebarApp = () => {
           {currentComponent}
         </Content>
       </Layout>
-    </>
+    </Layout>
   );
 };
 
