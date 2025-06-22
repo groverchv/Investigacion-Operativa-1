@@ -10,8 +10,6 @@ import {
 import { Menu, Layout, Breadcrumb, Button, theme } from "antd";
 
 // Componentes asociados
-import Gran_M from "../pages/Gran_M/Gran_M";
-import Dos_Fases from "../pages/Dos_Fases/Dos_Fases";
 import Integrantes from "../pages/Inicio/Integrantes";
 import Inicio from "../pages/Inicio/Inicio";
 import Asignacion from "../pages/Asignacion_Aulas/Asignacion";

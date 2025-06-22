@@ -8,8 +8,6 @@ import {
 import { Breadcrumb, Layout, Menu, theme, Typography } from 'antd';
 
 // Componentes
-import Gran_M from './Gran_M/Gran_M';
-import Dos_Fases from './Dos_Fases/Dos_Fases';
 import Asignacion from './Asignacion_Aulas/Asignacion';
 import Inicio from './Inicio/Inicio';
 import Integrantes from './Inicio/Integrantes';
