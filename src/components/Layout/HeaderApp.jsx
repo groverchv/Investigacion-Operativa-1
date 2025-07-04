@@ -21,8 +21,8 @@ const HeaderApp = () => (
         color: 'white',
         margin: 0,
         textAlign: 'center',
-        fontSize: 'clamp(1rem, 2vw + 1rem, 2rem)',  // Responsive
-        whiteSpace: 'normal', // Permite que el texto se ajuste
+        fontSize: 'clamp(1rem, 2vw + 1rem, 2rem)',
+        whiteSpace: 'normal', 
       }}
     >
       Investigación Operativa 1

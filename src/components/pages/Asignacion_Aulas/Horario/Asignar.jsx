@@ -1,5 +1,5 @@
 import React from 'react';
-import Tabla from '../Modal/tabla';
+import Tabla from '../../Prueba/Modal/tabla';
 import { useDatosCompartidos } from './DatosContext';
 
 export default function Asignar({ columnas, filasPaso1, filasPaso8, horarios }) {

@@ -13,6 +13,7 @@ import Inicio from "../pages/Inicio/Inicio";
 import Asignacion from "../pages/Asignacion_Aulas/Asignacion";
 import Objetivo from "../pages/Inicio/Objetivo";
 import Funcion from "../pages/Inicio/Funcion";
+import Prueba from "../pages/Prueba/Prueba";
 
 const { Sider, Content } = Layout;
 
@@ -32,6 +33,14 @@ const menuData = [
     icon: AuditOutlined,
     options: [{ label: "Asignación Optimizada", component: <Asignacion /> }],
   },
+
+  {
+    label: "Prueba",
+    icon: AuditOutlined,
+    options: [{ label: "Prueba", component: <Prueba /> }],
+  },
+
+
 ];
 
 const SidebarApp = () => {

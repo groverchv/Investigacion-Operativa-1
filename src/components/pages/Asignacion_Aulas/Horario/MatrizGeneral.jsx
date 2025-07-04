@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDatosCompartidos } from './DatosContext';
-import Tabla from '../Modal/tabla';  // Ajusta el path si es necesario
+import Tabla from '../../Prueba/Modal/tabla';  // Ajusta el path si es necesario
 
 export default function MatrizGeneral({ horarios }) {
   const { datosCompartidos } = useDatosCompartidos();

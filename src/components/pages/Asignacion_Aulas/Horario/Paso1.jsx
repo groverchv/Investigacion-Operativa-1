@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Tabla from '../Modal/tabla';
+import Tabla from '../../Prueba/Modal/tabla';
 import { useDatosCompartidos } from './DatosContext';
 
 export default function Paso1({ horarios, onResultado }) {

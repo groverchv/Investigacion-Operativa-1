@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Tabla from '../Modal/tabla'; // Ajusta el path según tu estructura
+import Tabla from '../../Prueba/Modal/tabla'; // Ajusta el path según tu estructura
 
 export default function Paso2({ columnasPaso1, filasPaso1, onResultado }) {
   // Crear nuevas filas reducidas

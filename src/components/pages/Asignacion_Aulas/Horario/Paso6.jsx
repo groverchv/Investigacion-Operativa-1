@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Tabla from '../Modal/tabla';
+import Tabla from '../../Prueba/Modal/tabla';
 
 export default function Paso6({ columnas, filas, onResultado }) {
   if (!filas || filas.length === 0) {

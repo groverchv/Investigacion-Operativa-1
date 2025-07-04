@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Tabla from '../Modal/tabla';
+import Tabla from '../../Prueba/Modal/tabla';
 
 export default function Paso7({ columnasPaso6, filasPaso6, filasConLinea, columnasConLinea, onResultado }) {
   const keysColumnas = columnasPaso6
