@@ -1,7 +1,7 @@
-'use client';
-import React, { useEffect } from 'react';
-import Tabla from '../Modal/tabla';
-import { Typography } from 'antd';
+"use client";
+import React, { useEffect } from "react";
+import Tabla from "../Modal/tabla";
+import { Typography } from "antd";
 
 export default function Paso7({
   matriz = [],
@@ -18,29 +18,28 @@ export default function Paso7({
     const numFilas = matriz.length;
     const numColumnas = matriz[0]?.length || 0;
 
-    console.log("Paso 7 — Conteo:");
-    console.log("Filas:", numFilas);
-    console.log("Columnas:", numColumnas);
-
-    let nuevaMatriz = matriz.map(f => [...f]);
+    let nuevaMatriz = matriz.map((f) => [...f]);
     let nuevasFilas = [...nombresFilas];
     let nuevasColumnas = [...nombresColumnas];
 
     if (numFilas < numColumnas) {
       const diferencia = numColumnas - numFilas;
-      console.log(`Agregando ${diferencia} fila(s) ficticia(s)`);
+    
       for (let i = 0; i < diferencia; i++) {
         nuevaMatriz.push(Array(numColumnas).fill(0));
         nuevasFilas.push({
-          materia: 'Materia Ficticia',
+          materia: "Materia Ficticia",
           grupo: `Ficticio ${i + 1}`,
           estudiantes: 0,
         });
       }
     } else if (numColumnas < numFilas) {
       const diferencia = numFilas - numColumnas;
-      console.log(`Agregando ${diferencia} columna(s) ficticia(s)`);
-      nuevaMatriz = nuevaMatriz.map(fila => [...fila, ...Array(diferencia).fill(umbralFicticio)]);
+
+      nuevaMatriz = nuevaMatriz.map((fila) => [
+        ...fila,
+        ...Array(diferencia).fill(umbralFicticio),
+      ]);
       for (let j = 0; j < diferencia; j++) {
         nuevasColumnas.push({
           nombre: `Horario Ficticio ${j + 1}`,
@@ -57,35 +56,37 @@ export default function Paso7({
 
   const columnasTabla = [
     {
-      title: 'Materia / Grupo',
-      dataIndex: 'grupo',
-      key: 'grupo',
+      title: "Materia / Grupo",
+      dataIndex: "grupo",
+      key: "grupo",
       render: (_, record) => (
-        <div style={{ whiteSpace: 'pre-line' }}>
-          <strong>{record.materia}</strong><br />
+        <div style={{ whiteSpace: "pre-line" }}>
+          <strong>{record.materia}</strong>
+          <br />
           Grupo {record.grupo} = {record.estudiantes}
         </div>
       ),
     },
     ...nombresColumnas.map((col, idx) => ({
       title: (
-        <div style={{ textAlign: 'center' }}>
-          <strong>{col.nombre || `Horario ${idx + 1}`}</strong><br />
+        <div style={{ textAlign: "center" }}>
+          <strong>{col.nombre || `Horario ${idx + 1}`}</strong>
+          <br />
           <span style={{ fontSize: 12 }}>
-            Costo: {col.costo !== undefined ? col.costo : 'No definido'}
+            Costo: {col.costo !== undefined ? col.costo : "No definido"}
           </span>
         </div>
       ),
       dataIndex: `col${idx}`,
       key: `col${idx}`,
-      align: 'center',
+      align: "center",
     })),
   ];
 
   const filasTabla = nombresFilas.map((fila, i) => {
     const obj = {
       key: `fila-${i}`,
-      materia: fila.materia || 'Materia Ficticia',
+      materia: fila.materia || "Materia Ficticia",
       grupo: fila.grupo || `Ficticio`,
       estudiantes: fila.estudiantes ?? 0,
     };
@@ -97,11 +98,13 @@ export default function Paso7({
 
   return (
     <div style={{ marginTop: 32 }}>
-      <Typography.Title level={4}>Paso 7 — Matriz Simétrica con Ficticios</Typography.Title>
+      <Typography.Title level={4}>
+        Paso 7 — Matriz Simétrica con Ficticios
+      </Typography.Title>
       <Tabla
         columnas={columnasTabla}
         filas={filasTabla}
-        titulo="Matriz Simétrica con Ficticios - Vista ampliada"
+        titulo="Matriz Simétrica con Ficticios"
         scrollY={260}
       />
     </div>

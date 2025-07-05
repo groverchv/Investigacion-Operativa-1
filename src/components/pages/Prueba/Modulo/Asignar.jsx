@@ -10,7 +10,7 @@ export default function Asignar({
   matrizPaso5 = [],
   nombresFilas = [],
   nombresColumnas = [],
-  onResolved = () => {}, // Prop para enviar los datos al padre
+  onResolved = () => {},
 }) {
   const [asignaciones, setAsignaciones] = useState([]);
   const [asignacionesLocales, setAsignacionesLocales] = useState([]);
@@ -23,19 +23,40 @@ export default function Asignar({
     const locales = Array(size).fill(-1);
     const usadas = new Set();
 
+    // Paso 1: asignar a los grupos que solo tienen una opción válida
     for (let i = 0; i < size; i++) {
+      const opcionesValidas = matrizPaso1[i]
+        .map((valor, j) => (valor !== 1000 && !usadas.has(j) ? j : -1))
+        .filter(j => j !== -1);
+
+      if (opcionesValidas.length === 1) {
+        const j = opcionesValidas[0];
+        locales[i] = j;
+        usadas.add(j);
+      }
+    }
+
+    // Paso 2: asignar al resto, usando ceros válidos
+    for (let i = 0; i < size; i++) {
+      if (locales[i] !== -1) continue; // ya asignado
+
       let asignado = false;
       for (let j = 0; j < matrizPaso5[i].length; j++) {
-        if (matrizPaso5[i][j] === 0 && !usadas.has(j)) {
+        const esCero = matrizPaso5[i][j] === 0;
+        const capacidad = matrizPaso1[i][j];
+        if (esCero && capacidad !== 1000 && !usadas.has(j)) {
           locales[i] = j;
           usadas.add(j);
           asignado = true;
           break;
         }
       }
+
+      // Paso 3: si no se pudo, asignar a primera opción real no usada
       if (!asignado) {
-        for (let j = 0; j < matrizPaso5[i].length; j++) {
-          if (!usadas.has(j)) {
+        for (let j = 0; j < matrizPaso1[i].length; j++) {
+          const capacidad = matrizPaso1[i][j];
+          if (capacidad !== 1000 && !usadas.has(j)) {
             locales[i] = j;
             usadas.add(j);
             break;
@@ -44,32 +65,33 @@ export default function Asignar({
       }
     }
 
-    const datosCompartir = locales
-      .map((colIndex, i) => {
-        const fila = nombresFilas[i];
-        const columna = nombresColumnas[colIndex];
-        if (!fila?.materia || !fila?.grupo || !columna) return null;
-        const [aula, piso] = columna.split("=").map((s) => s.trim());
-        const capacidad = matrizPaso1?.[i]?.[colIndex] ?? "?";
+    const datosCompartir = locales.map((colIndex, i) => {
+      const fila = nombresFilas[i];
+      const columna = nombresColumnas[colIndex];
+      if (!fila?.materia || !fila?.grupo || !columna) return null;
 
-        return {
-          grupo: fila.grupo,
-          materia: fila.materia,
-          estudiantes: fila.estudiantes,
-          aula: aula,
-          piso: piso,
-          capacidad: capacidad,
-        };
-      })
-      .filter(Boolean);
+      const [aula, piso] = columna.split("=").map((s) => s.trim());
+      const capacidad = matrizPaso1?.[i]?.[colIndex] ?? "?";
+      const estudiantes = parseInt(fila.estudiantes);
+      const esForzado = capacidad < estudiantes;
 
-    // Evitar llamar onResolved si los datos no cambiaron
+      return {
+        grupo: fila.grupo,
+        materia: fila.materia,
+        estudiantes: fila.estudiantes,
+        aula,
+        piso,
+        capacidad,
+        esForzado,
+      };
+    }).filter(Boolean);
+
     if (JSON.stringify(prevDatosCompartir) !== JSON.stringify(datosCompartir)) {
       setPrevDatosCompartir(datosCompartir);
       setAsignaciones(
-        datosCompartir.map(
-          (d) =>
-            `Al grupo ${d.grupo} de la materia "${d.materia}" con ${d.estudiantes} estudiantes se le asignó el aula ${d.aula} del ${d.piso} que tiene una capacidad de ${d.capacidad} personas.`
+        datosCompartir.map((d) =>
+          `Al grupo ${d.grupo} de la materia "${d.materia}" con ${d.estudiantes} estudiantes se le asignó el aula ${d.aula} del ${d.piso} que tiene una capacidad de ${d.capacidad} personas.` +
+          (d.esForzado ? " ⚠️ (Asignación forzada, aula más grande disponible)" : "")
         )
       );
       setAsignacionesLocales(locales);
@@ -104,6 +126,7 @@ export default function Asignar({
 
     const filas = matrizPaso1.map((fila, i) => {
       const isReal = nombresFilas[i]?.materia && nombresFilas[i]?.grupo;
+      const estudiantes = parseInt(nombresFilas[i]?.estudiantes ?? 0);
       const filaObj = {
         key: `fila_${i}`,
         materiaGrupo: isReal ? (
@@ -120,18 +143,24 @@ export default function Asignar({
           </div>
         ),
       };
+
       fila.forEach((valor, j) => {
         const esAsignado = asignacionesLocales[i] === j;
         const esCero = matrizPaso5[i]?.[j] === 0;
+        const esForzado = valor < estudiantes;
         const fondo = esAsignado
-          ? "#ffa94d"
+          ? esForzado
+            ? "#f08c00"
+            : "#ffa94d"
           : esCero
           ? "yellow"
           : "transparent";
+
         filaObj[`col_${j}`] = (
           <div style={{ backgroundColor: fondo, padding: "4px" }}>{valor}</div>
         );
       });
+
       return filaObj;
     });
 
@@ -146,7 +175,6 @@ export default function Asignar({
 
   return (
     <div style={{ padding: 24 }}>
-      <Title level={4}>📙 Matriz del Paso 1 (asignaciones y ceros)</Title>
 
       <Tabla
         columnas={columnas}

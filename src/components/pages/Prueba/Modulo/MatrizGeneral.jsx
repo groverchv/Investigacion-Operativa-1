@@ -2,10 +2,7 @@
 import React, { useEffect } from 'react';
 import Tabla from '../Modal/tabla';
 
-// MatrizGeneral: muestra todas las posibles asignaciones de aulas a grupos
-// basándose en la capacidad mínima requerida por grupo
 export default function MatrizGeneral({ materias, modulos, onDataReady }) {
-  // Genera una lista de aulas disponibles ordenadas por piso
   const aulasDisponibles = modulos
     .flatMap(modulo =>
       modulo.pisos
@@ -19,11 +16,21 @@ export default function MatrizGeneral({ materias, modulos, onDataReady }) {
         )
     );
 
-  // Genera las filas de la tabla con materias, grupos y aulas compatibles
   const filas = materias.flatMap((materia, idx) =>
     materia.grupos.map((grupo, i) => {
       const estudiantes = parseInt(grupo.estudiantes);
-      const aulasCompatibles = aulasDisponibles.filter(a => a.capacidad >= estudiantes);
+
+      // Filtramos aulas con capacidad suficiente
+      let aulasCompatibles = aulasDisponibles.filter(a => a.capacidad >= estudiantes);
+
+      // Si no hay aulas suficientes, asignamos el aula más grande
+      if (aulasCompatibles.length === 0 && aulasDisponibles.length > 0) {
+        const aulaMasGrande = aulasDisponibles.reduce((max, aula) =>
+          aula.capacidad > max.capacidad ? aula : max
+        );
+        aulasCompatibles = [aulaMasGrande];
+      }
+
       const pisos = [...new Set(aulasCompatibles.map(a => a.piso.replace('Piso ', '')))]
         .sort((a, b) => parseInt(a) - parseInt(b));
       const aulas = aulasCompatibles.map(a => a.nombre.replace('Aula ', ''));
@@ -41,14 +48,12 @@ export default function MatrizGeneral({ materias, modulos, onDataReady }) {
     })
   );
 
-  // Notifica al componente padre cuando las filas estén listas
   useEffect(() => {
     if (onDataReady) {
       onDataReady(filas);
     }
   }, [filas, onDataReady]);
 
-  // Define las columnas de la tabla
   const columnas = [
     { title: 'MATERIA', dataIndex: 'materia', key: 'materia' },
     { title: 'Grupo', dataIndex: 'grupo', key: 'grupo' },

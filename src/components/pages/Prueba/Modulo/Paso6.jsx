@@ -83,12 +83,12 @@ export default function Paso6({
   return (
     <div style={{ marginTop: 32 }}>
       <Typography.Title level={4}>
-        Paso 6 — Evaluar Compatibilidad con Horarios
+  
       </Typography.Title>
       <Tabla
         columnas={columnas}
         filas={filas}
-        titulo="Paso 6 — Evaluar Compatibilidad con Horarios"
+        titulo="Paso 6 Horarios"
         scrollY={260}
       />
     </div>

@@ -3,7 +3,6 @@ import React, { useEffect, useMemo } from 'react';
 import Tabla from '../Modal/tabla';
 
 export default function MatrizReducida({ materias, modulos, onDataReady }) {
-  // Aulas ordenadas por piso
   const aulas = useMemo(() => {
     return modulos
       .flatMap(mod =>
@@ -11,7 +10,7 @@ export default function MatrizReducida({ materias, modulos, onDataReady }) {
           .sort((a, b) => parseInt(a.nombre.replace('Piso ', '')) - parseInt(b.nombre.replace('Piso ', '')))
           .flatMap(piso =>
             piso.aulas.map(a => ({
-              nombre: a.nombre, // nombre real del aula
+              nombre: a.nombre,
               piso: piso.nombre.replace('Piso ', ''),
               capacidad: parseInt(a.capacidad),
             }))
@@ -19,7 +18,6 @@ export default function MatrizReducida({ materias, modulos, onDataReady }) {
       );
   }, [modulos]);
 
-  // Columnas para la tabla
   const columnas = useMemo(() => [
     {
       title: 'MATERIA / Grupo',
@@ -43,7 +41,6 @@ export default function MatrizReducida({ materias, modulos, onDataReady }) {
     }))
   ], [aulas]);
 
-  // Filas con datos por grupo
   const filas = useMemo(() => {
     return materias.flatMap((materia) =>
       materia.grupos.map((grupo) => {
@@ -57,15 +54,30 @@ export default function MatrizReducida({ materias, modulos, onDataReady }) {
             </div>
           )
         };
-        aulas.forEach((aula, idx) => {
-          row[`col${idx}`] = aula.capacidad >= estudiantes ? aula.capacidad : 1000;
-        });
+
+        const hayCompatibles = aulas.some(a => a.capacidad >= estudiantes);
+
+        if (hayCompatibles) {
+          // Normal: asignar capacidad si es suficiente, si no: 1000
+          aulas.forEach((aula, idx) => {
+            row[`col${idx}`] = aula.capacidad >= estudiantes ? aula.capacidad : 1000;
+          });
+        } else {
+          // No hay compatibles: asignar solo el aula más grande
+          const indexMayor = aulas.reduce((maxIdx, aula, idx) =>
+            aula.capacidad > aulas[maxIdx].capacidad ? idx : maxIdx
+          , 0);
+
+          aulas.forEach((_, idx) => {
+            row[`col${idx}`] = idx === indexMayor ? aulas[indexMayor].capacidad : 1000;
+          });
+        }
+
         return row;
       })
     );
   }, [materias, aulas]);
 
-  // Matriz pura para pasos posteriores
   const matrizNumerica = useMemo(() =>
     filas.map(row => aulas.map((_, idx) => row[`col${idx}`])),
     [filas, aulas]

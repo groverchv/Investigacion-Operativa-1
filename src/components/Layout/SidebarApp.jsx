@@ -8,11 +8,7 @@ import {
 import { Menu, Layout, Breadcrumb, Button, theme } from "antd";
 
 // Componentes asociados
-import Integrantes from "../pages/Inicio/Integrantes";
 import Inicio from "../pages/Inicio/Inicio";
-import Asignacion from "../pages/Asignacion_Aulas/Asignacion";
-import Objetivo from "../pages/Inicio/Objetivo";
-import Funcion from "../pages/Inicio/Funcion";
 import Prueba from "../pages/Prueba/Prueba";
 
 const { Sider, Content } = Layout;
@@ -23,21 +19,13 @@ const menuData = [
     icon: HomeOutlined,
     options: [
       { label: "Inicio General", component: <Inicio /> },
-      { label: "Integrantes", component: <Integrantes /> },
-      { label: "Objetivo", component: <Objetivo /> },
-      { label: "Funcion", component: <Funcion /> },
     ],
-  },
-  {
-    label: "Asignación Aula",
-    icon: AuditOutlined,
-    options: [{ label: "Asignación Optimizada", component: <Asignacion /> }],
   },
 
   {
-    label: "Prueba",
+    label: "Asignacion",
     icon: AuditOutlined,
-    options: [{ label: "Prueba", component: <Prueba /> }],
+    options: [{ label: "Asignación De Aulas", component: <Prueba /> }],
   },
 
 

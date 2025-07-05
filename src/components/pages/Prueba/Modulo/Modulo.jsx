@@ -17,9 +17,12 @@ import Paso7 from "./Paso7";
 import Paso8 from "./Paso8";
 import Paso9 from "./Paso9";
 import Paso10 from "./Paso10";
+import AsignacionHorario from "./AsignacionHorario";
+import ExportarResultados from "./ExportarResultados";
 
 export default function Modulo() {
   const [resuelto, setResuelto] = useState(false);
+  const [resueltoHorario, setResueltoHorario] = useState(false);
   const [matrizPaso9, setMatrizPaso9] = useState([]);
   const [matrizPaso10, setMatrizPaso10] = useState([]);
   const [nombreHorario, setNombreHorario] = useState([]);
@@ -33,7 +36,6 @@ export default function Modulo() {
   const [columnasPaso9, setColumnasPaso9] = useState([]);
   const [filasPaso10, setFilasPaso10] = useState([]);
   const [columnasPaso10, setColumnasPaso10] = useState([]);
-
   const [horarios, setHorarios] = useState([
     { nombre: "Horario 1", inicio: "07:00", fin: "09:15", costo: 50 },
     { nombre: "Horario 2", inicio: "09:15", fin: "11:30", costo: 40 },
@@ -124,13 +126,8 @@ export default function Modulo() {
 
       <div style={{ margin: "16px 0" }}>
         <Button type="primary" onClick={() => setResuelto(true)}>
-          Resolver
+          Resolver distribución de aulas
         </Button>
-        {!resuelto && (
-          <Typography.Paragraph type="secondary" style={{ marginTop: 8 }}>
-            Debes presionar "Resolver" para continuar con los pasos.
-          </Typography.Paragraph>
-        )}
       </div>
 
       {resuelto && (
@@ -201,48 +198,82 @@ export default function Modulo() {
               nombresColumnas={nombresColumnas}
             />
           )}
+
           <CrearHorario horarios={horarios} setHorarios={setHorarios} />
-          <Paso6
-            horarios={horarios}
-            nombresFilas={nombresFilas}
-            setNombreHorario={setNombreHorario}
-            setMatrizPaso6={setMatrizPaso6}
-            setFilasPaso6={setFilasPaso6}
-          />
-          <Paso7
-            matriz={matrizPaso6}
-            nombresFilas={filasPaso6}
-            nombresColumnas={nombreHorario}
-            umbralFicticio={1000}
-            setMatrizPaso7={setMatrizPaso7}
-            setFilasPaso7={setFilasPaso7}
-            setColumnasPaso7={setColumnasPaso7}
-          />
 
-          <Paso8
-            matriz={matrizPaso7}
-            nombresFilas={filasPaso7}
-            nombresColumnas={columnasPaso7}
-            umbralFicticio={1000}
-            setMatrizPaso8={setMatrizPaso8}
-            setFilasPaso8={setFilasPaso8}
-            setColumnasPaso8={setColumnasPaso8}
-          />
-          <Paso9
-            matriz={matrizPaso8}
-            nombresFilas={filasPaso8}
-            nombresColumnas={columnasPaso8}
-            setMatrizPaso9={setMatrizPaso9}
-            setFilasPaso9={setFilasPaso9}
-            setColumnasPaso9={setColumnasPaso9}
-          />
+          <div style={{ margin: "16px 0" }}>
+            <Button type="primary" onClick={() => setResueltoHorario(true)}>
+              Resolver asignación de horarios
+            </Button>
+          </div>
 
-          <Paso10
-            matriz={matrizPaso9}
-            nombresFilas={filasPaso9}
-            nombresColumnas={columnasPaso9}
-            onResolved={(nuevaMatriz) => setMatrizPaso10(nuevaMatriz)}
-          />
+          {resueltoHorario && (
+            <>
+              <Paso6
+                horarios={horarios}
+                nombresFilas={nombresFilas}
+                setNombreHorario={setNombreHorario}
+                setMatrizPaso6={setMatrizPaso6}
+                setFilasPaso6={setFilasPaso6}
+              />
+              <Paso7
+                matriz={matrizPaso6}
+                nombresFilas={filasPaso6}
+                nombresColumnas={nombreHorario}
+                umbralFicticio={1000}
+                setMatrizPaso7={setMatrizPaso7}
+                setFilasPaso7={setFilasPaso7}
+                setColumnasPaso7={setColumnasPaso7}
+              />
+              <Paso8
+                matriz={matrizPaso7}
+                nombresFilas={filasPaso7}
+                nombresColumnas={columnasPaso7}
+                umbralFicticio={1000}
+                setMatrizPaso8={setMatrizPaso8}
+                setFilasPaso8={setFilasPaso8}
+                setColumnasPaso8={setColumnasPaso8}
+              />
+              <Paso9
+                matriz={matrizPaso8}
+                nombresFilas={filasPaso8}
+                nombresColumnas={columnasPaso8}
+                setMatrizPaso9={setMatrizPaso9}
+                setFilasPaso9={setFilasPaso9}
+                setColumnasPaso9={setColumnasPaso9}
+              />
+              <Paso10
+                matriz={matrizPaso9}
+                nombresFilas={filasPaso9}
+                nombresColumnas={columnasPaso9}
+                onResolved={(nuevaMatriz, nuevasFilas, nuevasColumnas) => {
+                  setMatrizPaso10(nuevaMatriz);
+                  setFilasPaso10(nuevasFilas);
+                  setColumnasPaso10(nuevasColumnas);
+                }}
+              />
+              <AsignacionHorario
+                matrizPaso7={matrizPaso7}
+                matrizPaso10={matrizPaso10}
+                nombresFilas={filasPaso10}
+                nombresColumnas={columnasPaso10}
+              />
+
+              <ExportarResultados
+                modulos={modulos}
+                materias={materias}
+                horarios={horarios}
+                matrizPaso1={matrizPaso1}
+                matrizPaso5={matrizPaso5}
+                matrizPaso7={matrizPaso7}
+                matrizPaso10={matrizPaso10}
+                nombresFilas={nombresFilas}
+                nombresColumnas={nombresColumnas}
+                filasPaso10={filasPaso10}
+                columnasPaso10={columnasPaso10}
+              />
+            </>
+          )}
         </>
       )}
     </div>

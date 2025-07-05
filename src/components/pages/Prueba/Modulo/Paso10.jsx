@@ -9,11 +9,11 @@ const styles = `
     background-color: #39ff14 !important;
   }
   .celda-cero {
-    background-color:  #39ff14 !important;
+    background-color: #39ff14 !important;
   }
 `;
 
-export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas = [] }) {
+export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas = [], onResolved = () => {} }) {
   const [iteraciones, setIteraciones] = useState([]);
 
   useEffect(() => {
@@ -30,14 +30,13 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
     let filasMarcadas = Array(filas).fill(false);
     let columnasMarcadas = Array(columnas).fill(false);
 
-    // Primera iteración: marcar filas ficticias (por nombre)
+    // Primera iteración: marcar filas ficticias
     filasMarcadas = nombresFilas.map(fila => fila?.materia?.toLowerCase().includes('ficticia'));
 
     while (!cumple && paso <= 20) {
-      // Nueva matriz de celdas con ceros
       const celdasCero = matrizActual.map(fila => fila.map(val => val === 0));
 
-      // Nuevas columnas con ceros en filas no marcadas
+      // Marcar columnas
       if (paso > 1) {
         for (let j = 0; j < columnas; j++) {
           for (let i = 0; i < filas; i++) {
@@ -48,7 +47,6 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
           }
         }
       } else {
-        // En la primera iteración: marcar columnas que tengan todos ceros
         for (let j = 0; j < columnas; j++) {
           let allZero = true;
           for (let i = 0; i < filas; i++) {
@@ -68,7 +66,7 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
 
       historial.push({
         iteracion: paso,
-        matriz: matrizActual,
+        matriz: matrizActual.map(f => [...f]),
         filasMarcadas: [...filasMarcadas],
         columnasMarcadas: [...columnasMarcadas],
         celdasCero,
@@ -77,7 +75,11 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
         cumple
       });
 
-      if (cumple) break;
+      if (cumple) {
+        // ✅ Compartimos la matriz final, nombres de filas y columnas
+        onResolved(matrizActual, nombresFilas, nombresColumnas);
+        break;
+      }
 
       // Paso 6: reducción
       let minimo = Infinity;
@@ -116,16 +118,12 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
             fixed: 'left',
           },
           ...Array.from({ length: iter.matriz[0].length }, (_, j) => {
-            const nombre = nombresColumnas[j] || `Aula ${j + 1}`;
-            const [aula, piso] = nombre.split('=')?.map(s => s?.trim()) || [];
+            const nombre = nombresColumnas[j] || `Horario ${j + 1}`;
             return {
-              title: j < nombresColumnas.length ? (
+              title: (
                 <div style={{ textAlign: 'center' }}>
-                  <strong>{aula}</strong><br /><span>= {piso}</span>
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center' }}>
-                  <strong>Ficticia</strong><br /><span>(extra)</span>
+                  <strong>{nombre?.nombre || nombre}</strong><br />
+                  <span>{nombre?.costo ? `Costo: ${nombre.costo}` : ''}</span>
                 </div>
               ),
               dataIndex: `col${j}`,

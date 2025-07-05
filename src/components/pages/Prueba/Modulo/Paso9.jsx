@@ -89,7 +89,6 @@ export default function Paso9({
 
   return (
     <div style={{ marginTop: 32 }}>
-      <Typography.Title level={4}>Paso 9 — Reducción por Columnas</Typography.Title>
       <Tabla
         columnas={columnasTabla}
         filas={filasConReduccion}
