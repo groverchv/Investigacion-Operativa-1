@@ -11,18 +11,20 @@ import {
   message,
 } from 'antd';
 import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+dayjs.extend(isSameOrAfter); // 🔥 ¡Extiende el plugin necesario!
 
 export default function CrearHorario({ horarios, setHorarios }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [editandoIndex, setEditandoIndex] = useState(null);
-  const [inicio, setInicio] = useState(null);
-  const [fin, setFin] = useState(null);
+  const [inicio, setInicio] = useState(dayjs('07:00', 'HH:mm'));
+  const [fin, setFin] = useState(dayjs('08:00', 'HH:mm'));
   const [costo, setCosto] = useState(0);
   const [nombreHorario, setNombreHorario] = useState('');
 
   const abrirModalNuevo = () => {
-    setInicio(dayjs('00:00', 'HH:mm'));
-    setFin(dayjs('00:00', 'HH:mm'));
+    setInicio(dayjs('07:00', 'HH:mm'));
+    setFin(dayjs('08:00', 'HH:mm'));
     setCosto(0);
     setNombreHorario(`Horario ${horarios.length + 1}`);
     setEditandoIndex(null);
@@ -31,38 +33,50 @@ export default function CrearHorario({ horarios, setHorarios }) {
 
   const abrirModalEditar = (index) => {
     const bloque = horarios[index];
-    setInicio(dayjs(bloque.inicio, 'HH:mm'));
-    setFin(dayjs(bloque.fin, 'HH:mm'));
-    setCosto(bloque.costo || 0);
+    setInicio(dayjs(bloque.inicio || '07:00', 'HH:mm'));
+    setFin(dayjs(bloque.fin || '08:00', 'HH:mm'));
+    setCosto(Number(bloque.costo) || 0);
     setNombreHorario(bloque.nombre || `Horario ${index + 1}`);
     setEditandoIndex(index);
     setModalVisible(true);
   };
 
   const guardarBloque = () => {
-    if (!inicio || !fin) return message.error('Completa ambos campos de hora');
+    try {
+      const inicioHora = dayjs(inicio, 'HH:mm');
+      const finHora = dayjs(fin, 'HH:mm');
 
-    if (inicio.isSameOrAfter(fin)) {
-      return message.error('La hora de inicio debe ser menor que la de fin');
+      if (!inicioHora.isValid() || !finHora.isValid()) {
+        return message.error('Las horas no son válidas');
+      }
+
+      if (inicioHora.isSameOrAfter(finHora)) {
+        return message.error('La hora de inicio debe ser menor que la de fin');
+      }
+
+      const nombreFinal = nombreHorario?.trim() || `Horario ${horarios.length + 1}`;
+
+      const nuevoBloque = {
+        nombre: nombreFinal,
+        inicio: inicioHora.format('HH:mm'),
+        fin: finHora.format('HH:mm'),
+        costo: Math.max(0, costo),
+      };
+
+      const nuevaLista = [...horarios];
+      if (editandoIndex !== null) {
+        nuevaLista[editandoIndex] = nuevoBloque;
+      } else {
+        nuevaLista.push(nuevoBloque);
+      }
+
+      setHorarios(nuevaLista);
+      setModalVisible(false);
+      message.success('Bloque guardado');
+    } catch (error) {
+      console.error('❌ Error inesperado al guardar:', error);
+      message.error('Ocurrió un error al guardar el horario');
     }
-
-    const nuevoBloque = {
-      nombre: nombreHorario || `Horario ${horarios.length + 1}`,
-      inicio: inicio.format('HH:mm'),
-      fin: fin.format('HH:mm'),
-      costo: costo,
-    };
-
-    const nuevaLista = [...horarios];
-    if (editandoIndex !== null) {
-      nuevaLista[editandoIndex] = nuevoBloque;
-    } else {
-      nuevaLista.push(nuevoBloque);
-    }
-
-    setHorarios(nuevaLista);
-    setModalVisible(false);
-    message.success('Bloque guardado');
   };
 
   const eliminarBloque = (index) => {
@@ -137,9 +151,12 @@ export default function CrearHorario({ horarios, setHorarios }) {
             <label>Hora de inicio:</label>
             <TimePicker
               format="HH:mm"
-              value={inicio}
-              onChange={(value) => setInicio(value)}
+              value={dayjs.isDayjs(inicio) ? inicio : dayjs('07:00', 'HH:mm')}
+              onChange={(value) =>
+                setInicio(dayjs.isDayjs(value) ? value : dayjs('07:00', 'HH:mm'))
+              }
               style={{ width: '100%' }}
+              allowClear={false}
             />
           </div>
 
@@ -147,9 +164,12 @@ export default function CrearHorario({ horarios, setHorarios }) {
             <label>Hora de fin:</label>
             <TimePicker
               format="HH:mm"
-              value={fin}
-              onChange={(value) => setFin(value)}
+              value={dayjs.isDayjs(fin) ? fin : dayjs('08:00', 'HH:mm')}
+              onChange={(value) =>
+                setFin(dayjs.isDayjs(value) ? value : dayjs('08:00', 'HH:mm'))
+              }
               style={{ width: '100%' }}
+              allowClear={false}
             />
           </div>
 
@@ -158,7 +178,7 @@ export default function CrearHorario({ horarios, setHorarios }) {
             <InputNumber
               min={0}
               value={costo}
-              onChange={(value) => setCosto(value)}
+              onChange={(value) => setCosto(Number(value) || 0)}
               formatter={(value) => `$ ${value}`}
               parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
               style={{ width: '100%' }}

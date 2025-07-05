@@ -37,15 +37,15 @@ export default function Modulo() {
   const [filasPaso10, setFilasPaso10] = useState([]);
   const [columnasPaso10, setColumnasPaso10] = useState([]);
   const [horarios, setHorarios] = useState([
-
+    
   ]);
 
   const [modulos, setModulos] = useState([
-   
+    
   ]);
 
   const [materias, setMaterias] = useState([
-  
+    
   ]);
 
   const [matrizReducida, setMatrizReducida] = useState([]);
@@ -63,6 +63,7 @@ export default function Modulo() {
     <div style={{ padding: 24 }}>
       <CrearModulo modulos={modulos} setModulos={setModulos} />
       <GrupoMateria materias={materias} setMaterias={setMaterias} />
+      
 
       <div style={{ margin: "16px 0" }}>
         <Button type="primary" onClick={() => setResuelto(true)}>
