@@ -6,30 +6,32 @@ import Tabla from "../Modal/tabla";
 const { Title } = Typography;
 
 export default function AsignacionHorario({
-  matrizPaso7 = [],
-  matrizPaso10 = [],
-  nombresFilas = [],
-  nombresColumnas = [],
+  matrizPaso7 = [],         // Matriz de costos original (valores de referencia visuales)
+  matrizPaso10 = [],        // Matriz de asignaciones con ceros finales del método húngaro
+  nombresFilas = [],        // Información de materias, grupos y estudiantes
+  nombresColumnas = [],     // Información de horarios y costos
 }) {
+  // Determina qué celdas representan asignaciones válidas (donde hay un 0 no usado aún)
   const asignacionesValidas = useMemo(() => {
     const asignadas = [];
-    const filasOcupadas = new Set();
-    const columnasOcupadas = new Set();
+    const filasOcupadas = new Set();      // Para no asignar dos veces la misma fila
+    const columnasOcupadas = new Set();   // Para no asignar dos veces la misma columna
 
     for (let i = 0; i < matrizPaso10.length; i++) {
       for (let j = 0; j < matrizPaso10[i].length; j++) {
         const esCero = matrizPaso10[i][j] === 0;
         if (esCero && !filasOcupadas.has(i) && !columnasOcupadas.has(j)) {
-          asignadas.push({ i, j });
+          asignadas.push({ i, j });       // Guardamos la asignación
           filasOcupadas.add(i);
           columnasOcupadas.add(j);
         }
       }
     }
 
-    return asignadas;
+    return asignadas;  // Devuelve las asignaciones válidas como pares {i, j}
   }, [matrizPaso10]);
 
+  //  Define las columnas de la tabla visual, usando nombres de horarios y mostrando el costo
   const columnas = useMemo(() => {
     return [
       {
@@ -53,6 +55,7 @@ export default function AsignacionHorario({
     ];
   }, [nombresColumnas]);
 
+  //  Crea las filas para la tabla visual, resaltando las celdas que están asignadas
   const filasPaso7 = useMemo(() => {
     return matrizPaso7.map((fila, i) => {
       const filaObj = {
@@ -67,6 +70,7 @@ export default function AsignacionHorario({
         ),
       };
 
+      // Recorremos cada valor de la fila para construir las celdas
       fila.forEach((valor, j) => {
         const asignado = asignacionesValidas.some(
           (a) => a.i === i && a.j === j
@@ -74,7 +78,7 @@ export default function AsignacionHorario({
         filaObj[`col_${j}`] = (
           <div
             style={{
-              backgroundColor: asignado ? "orange" : "#ffff66",
+              backgroundColor: asignado ? "orange" : "#ffff66",  // Color distinto si fue asignado
               padding: "4px",
               fontWeight: asignado ? "bold" : "normal",
             }}
@@ -88,11 +92,12 @@ export default function AsignacionHorario({
     });
   }, [matrizPaso7, nombresFilas, asignacionesValidas]);
 
+  //  Genera un resumen en formato de texto de las asignaciones válidas, omitiendo las ficticias
   const resumenAsignaciones = useMemo(() => {
     return asignacionesValidas
       .filter(({ i }) => {
         const materia = nombresFilas[i]?.materia?.toLowerCase() || "";
-        return !materia.includes("ficticia");
+        return !materia.includes("ficticia"); // Se omiten filas ficticias
       })
       .map(({ i, j }) => {
         const materia = nombresFilas[i]?.materia || `Materia ${i + 1}`;
@@ -102,9 +107,9 @@ export default function AsignacionHorario({
       });
   }, [asignacionesValidas, nombresFilas, nombresColumnas]);
 
+  //  Renderiza la tabla y el resumen de asignaciones debajo
   return (
     <div style={{ padding: 24 }}>
-     
       <Tabla
         columnas={columnas}
         filas={filasPaso7}

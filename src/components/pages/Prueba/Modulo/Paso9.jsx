@@ -1,15 +1,21 @@
 'use client';
+
 import React, { useEffect, useState } from 'react';
 import { Typography } from 'antd';
 import Tabla from '../Modal/tabla';
 
+/**
+ * Paso9 — Reducción por columnas.
+ * Para cada columna, se resta el valor mínimo a todos sus elementos.
+ * El objetivo es asegurar al menos un cero por columna en la matriz reducida.
+ */
 export default function Paso9({
-  matriz = [],
-  nombresColumnas = [],
-  nombresFilas = [],
-  setMatrizPaso9,
-  setFilasPaso9,
-  setColumnasPaso9
+  matriz = [],                  // Matriz resultante del Paso 8
+  nombresColumnas = [],        // Lista de columnas (horarios)
+  nombresFilas = [],           // Lista de filas (grupos)
+  setMatrizPaso9,              // Setter para matriz reducida por columnas
+  setFilasPaso9,               // Setter para filas (sin modificar)
+  setColumnasPaso9             // Setter para columnas (sin modificar)
 }) {
   const [reduccionColumnas, setReduccionColumnas] = useState([]);
   const [matrizReducida, setMatrizReducida] = useState([]);
@@ -20,6 +26,7 @@ export default function Paso9({
     const numFilas = matriz.length;
     const numColumnas = matriz[0].length;
 
+    // 1. Obtener el mínimo de cada columna
     const minimos = Array(numColumnas).fill(Infinity);
     for (let j = 0; j < numColumnas; j++) {
       for (let i = 0; i < numFilas; i++) {
@@ -27,6 +34,7 @@ export default function Paso9({
       }
     }
 
+    // 2. Restar el mínimo de su columna a cada elemento
     const nuevaMatriz = matriz.map((fila, i) =>
       fila.map((val, j) => val - minimos[j])
     );
@@ -34,13 +42,16 @@ export default function Paso9({
     setReduccionColumnas(minimos);
     setMatrizReducida(nuevaMatriz);
 
+    // Exportar resultados al componente padre
     setMatrizPaso9?.(nuevaMatriz);
     setFilasPaso9?.(nombresFilas);
     setColumnasPaso9?.(nombresColumnas);
   }, [matriz]);
 
+  // Si no hay datos, no renderizar nada
   if (!matrizReducida.length) return null;
 
+  // Definición de columnas para la tabla
   const columnasTabla = [
     {
       title: 'Materia / Grupo',
@@ -61,6 +72,7 @@ export default function Paso9({
     }))
   ];
 
+  // Construcción de las filas de la tabla
   const filasTabla = matrizReducida.map((fila, i) => {
     const filaObj = {
       key: `fila-${i}`,
@@ -74,7 +86,7 @@ export default function Paso9({
     return filaObj;
   });
 
-  // Agregar la fila de reducción
+  // Fila adicional para mostrar la reducción aplicada a cada columna
   const filaReduccion = {
     key: 'reduccion-final',
     grupo: <strong style={{ color: '#1677ff' }}>Reducción</strong>,
@@ -85,6 +97,7 @@ export default function Paso9({
     filaReduccion[`col${j}`] = <strong style={{ color: '#1677ff' }}>{val}</strong>;
   });
 
+  // Agregamos la fila de reducción como última fila en la tabla
   const filasConReduccion = [...filasTabla, filaReduccion];
 
   return (

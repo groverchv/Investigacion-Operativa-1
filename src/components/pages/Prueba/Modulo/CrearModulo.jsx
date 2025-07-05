@@ -1,18 +1,24 @@
 import React from "react";
 import { Button, Input, Modal, Typography, Space } from "antd";
 
+// Componente para crear, editar y visualizar módulos (edificios), pisos y aulas
 export default function CrearModulo({ modulos, setModulos }) {
+  // Estado para controlar la visibilidad del modal de creación de módulo
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  // Estado para almacenar temporalmente el nombre de un nuevo módulo o módulo editado
   const [nombreModulo, setNombreModulo] = React.useState("");
 
+  // Estados para controlar la edición de un módulo existente
   const [editandoModuloIndex, setEditandoModuloIndex] = React.useState(null);
   const [modalEditarModulo, setModalEditarModulo] = React.useState(false);
 
+  // Estados para controlar la edición de un aula
   const [aulaSeleccionada, setAulaSeleccionada] = React.useState(null);
   const [modalAulaVisible, setModalAulaVisible] = React.useState(false);
   const [nuevoNombreAula, setNuevoNombreAula] = React.useState("");
   const [capacidadAula, setCapacidadAula] = React.useState("");
 
+  // Crea un nuevo módulo con nombre y sin pisos
   const crearModulo = () => {
     if (nombreModulo.trim() === "") return;
     const nuevoModulo = {
@@ -24,12 +30,14 @@ export default function CrearModulo({ modulos, setModulos }) {
     setIsModalOpen(false);
   };
 
+  // Abre el modal para editar un módulo existente
   const abrirModalEditarModulo = (index) => {
     setEditandoModuloIndex(index);
     setNombreModulo(modulos[index].nombre);
     setModalEditarModulo(true);
   };
 
+  // Guarda el nuevo nombre del módulo editado
   const guardarEdicionModulo = () => {
     if (editandoModuloIndex === null || nombreModulo.trim() === "") return;
     const nuevosModulos = [...modulos];
@@ -40,12 +48,14 @@ export default function CrearModulo({ modulos, setModulos }) {
     setNombreModulo("");
   };
 
+  // Elimina un módulo del arreglo
   const eliminarModulo = (index) => {
     const nuevosModulos = [...modulos];
     nuevosModulos.splice(index, 1);
     setModulos(nuevosModulos);
   };
 
+  // Agrega un piso nuevo al inicio del módulo indicado
   const agregarPiso = (moduloIndex) => {
     const nuevosModulos = [...modulos];
     const nuevoPiso = {
@@ -56,12 +66,14 @@ export default function CrearModulo({ modulos, setModulos }) {
     setModulos(nuevosModulos);
   };
 
+  // Elimina el piso seleccionado de un módulo
   const eliminarPiso = (moduloIndex, pisoIndex) => {
     const nuevosModulos = [...modulos];
     nuevosModulos[moduloIndex].pisos.splice(pisoIndex, 1);
     setModulos(nuevosModulos);
   };
 
+  // Agrega un aula a un piso y calcula su número correlativo
   const agregarAula = (moduloIndex, pisoIndex) => {
     const nuevosModulos = [...modulos];
     const piso = nuevosModulos[moduloIndex].pisos[pisoIndex];
@@ -76,6 +88,7 @@ export default function CrearModulo({ modulos, setModulos }) {
     setModulos(nuevosModulos);
   };
 
+  // Elimina un aula seleccionada desde el modal
   const eliminarAulaDesdeModal = () => {
     const { moduloIndex, pisoIndex, aulaIndex } = aulaSeleccionada;
     const nuevosModulos = [...modulos];
@@ -85,6 +98,7 @@ export default function CrearModulo({ modulos, setModulos }) {
     setAulaSeleccionada(null);
   };
 
+  // Abre el modal para editar el aula seleccionada
   const abrirModalEditarAula = (moduloIndex, pisoIndex, aulaIndex) => {
     const aula = modulos[moduloIndex].pisos[pisoIndex].aulas[aulaIndex];
     setAulaSeleccionada({ moduloIndex, pisoIndex, aulaIndex });
@@ -93,6 +107,7 @@ export default function CrearModulo({ modulos, setModulos }) {
     setModalAulaVisible(true);
   };
 
+  // Guarda los datos editados del aula
   const guardarDatosAula = () => {
     const nuevosModulos = [...modulos];
     const { moduloIndex, pisoIndex, aulaIndex } = aulaSeleccionada;
@@ -111,10 +126,12 @@ export default function CrearModulo({ modulos, setModulos }) {
         Gestión de Módulos / Edificios
       </Typography.Title>
 
+      {/* Botón para abrir modal de creación de módulo */}
       <Button type="primary" onClick={() => setIsModalOpen(true)}>
         Crear Módulo
       </Button>
 
+      {/* Modal para crear nuevo módulo */}
       <Modal
         title="Crear nuevo módulo"
         open={isModalOpen}
@@ -130,6 +147,7 @@ export default function CrearModulo({ modulos, setModulos }) {
         />
       </Modal>
 
+      {/* Modal para editar módulo */}
       <Modal
         title="Editar Módulo"
         open={modalEditarModulo}
@@ -145,6 +163,7 @@ export default function CrearModulo({ modulos, setModulos }) {
         />
       </Modal>
 
+      {/* Modal para editar aula */}
       <Modal
         title="Editar Aula"
         open={modalAulaVisible}
@@ -175,8 +194,15 @@ export default function CrearModulo({ modulos, setModulos }) {
         />
       </Modal>
 
+      {/* Renderizado de los módulos */}
       <div
-        style={{ marginTop: 32, display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "flex-start" }}
+        style={{
+          marginTop: 32,
+          display: "flex",
+          gap: 20,
+          flexWrap: "wrap",
+          justifyContent: "flex-start",
+        }}
       >
         {modulos.map((modulo, mIndex) => {
           const totalAulas = modulo.pisos.reduce(
@@ -204,6 +230,7 @@ export default function CrearModulo({ modulos, setModulos }) {
                 backgroundColor: "#fafafa",
               }}
             >
+              {/* Encabezado del módulo */}
               <div
                 style={{
                   display: "flex",
@@ -232,6 +259,7 @@ export default function CrearModulo({ modulos, setModulos }) {
                 </Space>
               </div>
 
+              {/* Botón para agregar piso */}
               <Button
                 block
                 onClick={() => agregarPiso(mIndex)}
@@ -240,6 +268,7 @@ export default function CrearModulo({ modulos, setModulos }) {
                 Agregar Piso
               </Button>
 
+              {/* Render de pisos y aulas */}
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {[...modulo.pisos]
                   .map((piso, originalIndex) => ({ piso, originalIndex }))
@@ -259,6 +288,7 @@ export default function CrearModulo({ modulos, setModulos }) {
                           padding: 8,
                         }}
                       >
+                        {/* Cabecera del piso */}
                         <div
                           style={{
                             display: "flex",
@@ -284,6 +314,7 @@ export default function CrearModulo({ modulos, setModulos }) {
                           </Space>
                         </div>
 
+                        {/* Aulas del piso */}
                         {piso.aulas.length > 0 && (
                           <div
                             style={{
@@ -322,6 +353,7 @@ export default function CrearModulo({ modulos, setModulos }) {
                           </div>
                         )}
 
+                        {/* Capacidad total del piso */}
                         <div
                           style={{
                             marginTop: 8,
@@ -336,6 +368,7 @@ export default function CrearModulo({ modulos, setModulos }) {
                     );
                   })}
 
+                {/* Resumen del módulo */}
                 <div
                   style={{
                     marginTop: 12,

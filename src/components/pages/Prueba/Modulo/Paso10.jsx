@@ -1,8 +1,10 @@
 'use client';
+
 import React, { useEffect, useState } from 'react';
 import { Typography } from 'antd';
 import Tabla from '../Modal/tabla';
 
+// Estilos aplicados a celdas tachadas y celdas con cero
 const styles = `
   .fila-tachada td:not(:first-child),
   .columna-tachada {
@@ -13,7 +15,17 @@ const styles = `
   }
 `;
 
-export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas = [], onResolved = () => {} }) {
+/**
+ * Paso10 — Aplica iterativamente la lógica del método húngaro
+ * hasta que se pueda cubrir todos los ceros con líneas mínimas.
+ * Realiza cobertura y reducción, marcando visualmente cada paso.
+ */
+export default function Paso10({
+  matriz = [],
+  nombresFilas = [],
+  nombresColumnas = [],
+  onResolved = () => {}
+}) {
   const [iteraciones, setIteraciones] = useState([]);
 
   useEffect(() => {
@@ -21,22 +33,25 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
 
     const filas = matriz.length;
     const columnas = matriz[0].length;
-    const sizeMinima = Math.min(filas, columnas);
-
-    let matrizActual = matriz.map(row => [...row]);
+    const sizeMinima = Math.min(filas, columnas); // Condición a cumplir
+    let matrizActual = matriz.map(row => [...row]); // Copia profunda
     const historial = [];
     let cumple = false;
     let paso = 1;
-    let filasMarcadas = Array(filas).fill(false);
+
+    // Marcar como tachadas las filas ficticias
+    let filasMarcadas = nombresFilas.map(fila =>
+      fila?.materia?.toLowerCase().includes('ficticia')
+    );
+
     let columnasMarcadas = Array(columnas).fill(false);
 
-    // Primera iteración: marcar filas ficticias
-    filasMarcadas = nombresFilas.map(fila => fila?.materia?.toLowerCase().includes('ficticia'));
-
     while (!cumple && paso <= 20) {
-      const celdasCero = matrizActual.map(fila => fila.map(val => val === 0));
+      const celdasCero = matrizActual.map(fila =>
+        fila.map(val => val === 0)
+      );
 
-      // Marcar columnas
+      // Paso 5: Marcar columnas que contienen ceros en filas no marcadas
       if (paso > 1) {
         for (let j = 0; j < columnas; j++) {
           for (let i = 0; i < filas; i++) {
@@ -47,6 +62,7 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
           }
         }
       } else {
+        // Primera iteración: marcar columnas donde todas las celdas son cero
         for (let j = 0; j < columnas; j++) {
           let allZero = true;
           for (let i = 0; i < filas; i++) {
@@ -59,11 +75,13 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
         }
       }
 
+      // Verificar si se cumple la condición de líneas mínimas
       const totalFilas = filasMarcadas.filter(Boolean).length;
       const totalColumnas = columnasMarcadas.filter(Boolean).length;
       const totalLineas = totalFilas + totalColumnas;
       cumple = totalLineas >= sizeMinima;
 
+      // Guardar esta iteración
       historial.push({
         iteracion: paso,
         matriz: matrizActual.map(f => [...f]),
@@ -76,12 +94,11 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
       });
 
       if (cumple) {
-        // ✅ Compartimos la matriz final, nombres de filas y columnas
-        onResolved(matrizActual, nombresFilas, nombresColumnas);
+        onResolved(matrizActual, nombresFilas, nombresColumnas); // Enviar resultado final
         break;
       }
 
-      // Paso 6: reducción
+      // Paso 6: reducción por el mínimo en celdas no tachadas
       let minimo = Infinity;
       for (let i = 0; i < filas; i++) {
         if (filasMarcadas[i]) continue;
@@ -92,6 +109,7 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
         }
       }
 
+      // Aplicar reducción y aumento según el método
       matrizActual = matrizActual.map((fila, i) =>
         fila.map((val, j) => {
           if (!filasMarcadas[i] && !columnasMarcadas[j]) return val - minimo;
@@ -109,7 +127,10 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
   return (
     <div>
       <style>{styles}</style>
+
+      {/* Mostrar cada iteración visualmente */}
       {iteraciones.map((iter, index) => {
+        // Construcción de columnas de la tabla
         const columnas = [
           {
             title: 'MATERIA / Grupo',
@@ -129,6 +150,7 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
               dataIndex: `col${j}`,
               key: `col${j}`,
               align: 'center',
+              // Estilo visual para tachar columnas y resaltar ceros
               onCell: (_, i) => {
                 const esCero = iter.celdasCero?.[i]?.[j];
                 const columnaTachada = iter.columnasMarcadas[j];
@@ -140,6 +162,7 @@ export default function Paso10({ matriz = [], nombresFilas = [], nombresColumnas
           })
         ];
 
+        // Construcción de filas de la tabla
         const filas = iter.matriz.map((fila, i) => {
           const isReal = i < nombresFilas.length;
           const row = {

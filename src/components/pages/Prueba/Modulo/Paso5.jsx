@@ -1,8 +1,10 @@
 'use client';
+
 import React, { useEffect, useState } from 'react';
 import { Typography } from 'antd';
 import Tabla from '../Modal/tabla';
 
+// Estilos para tachar visualmente filas y columnas en la tabla
 const styles = `
   .fila-tachada td:not(:first-child),
   .columna-tachada {
@@ -13,6 +15,10 @@ const styles = `
   }
 `;
 
+/**
+ * Función auxiliar que identifica qué columnas tienen ceros no tachados (no cubiertos por filas).
+ * Ignora ceros ficticios mayores al umbral.
+ */
 function columnasConCerosNoTachados(matriz, filasCubiertas, umbralFicticio = 1000) {
   const columnasCubiertas = Array(matriz[0]?.length || 0).fill(false);
   for (let j = 0; j < matriz[0]?.length; j++) {
@@ -26,6 +32,10 @@ function columnasConCerosNoTachados(matriz, filasCubiertas, umbralFicticio = 100
   return columnasCubiertas;
 }
 
+/**
+ * Función auxiliar que marca filas que contienen ceros no cubiertos por ficticias ya tachadas.
+ * Se usa cuando ya se tacharon algunas columnas ficticias.
+ */
 function filasConCerosIgnorandoFicticiasTachadas(matriz, columnasCubiertas, nombresColumnas, umbralFicticio = 1000) {
   const filasCubiertas = Array(matriz.length).fill(false);
   for (let i = 0; i < matriz.length; i++) {
@@ -43,7 +53,18 @@ function filasConCerosIgnorandoFicticiasTachadas(matriz, columnasCubiertas, nomb
   return filasCubiertas;
 }
 
-export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas = [], umbralFicticio = 1000, onResolved }) {
+/**
+ * Componente Paso5:
+ * Aplica el Paso 5 y Paso 6 del método húngaro para cubrir ceros con líneas mínimas
+ * y realizar reducciones iterativas hasta cumplir la condición.
+ */
+export default function Paso5({
+  matriz = [],
+  nombresFilas = [],
+  nombresColumnas = [],
+  umbralFicticio = 1000,
+  onResolved
+}) {
   const [iteraciones, setIteraciones] = useState([]);
 
   useEffect(() => {
@@ -53,15 +74,26 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
     if (sizeFilas === 0 || sizeColumnas === 0) return;
 
     const historial = [];
-    let matrizActual = matriz.map(fila => [...fila]);
+    let matrizActual = matriz.map(fila => [...fila]); // copia profunda
     let cumple = false;
     let iteracion = 1;
 
+    // Ciclo principal de iteración entre Paso 5 y Paso 6
     while (!cumple && iteracion <= 20) {
-      const filasBase = Array(sizeFilas).fill(false).map((_, i) => i >= nombresFilas.length);
-      const columnasCubiertas = columnasConCerosNoTachados(matrizActual, filasBase, umbralFicticio);
-      const ficticiasTachadas = columnasCubiertas.slice(nombresColumnas.length).some(c => c);
+      // Fila cubierta por defecto si es ficticia
+      const filasBase = Array(sizeFilas)
+        .fill(false)
+        .map((_, i) => i >= nombresFilas.length);
 
+      // Paso 5: cubrir columnas con ceros
+      const columnasCubiertas = columnasConCerosNoTachados(matrizActual, filasBase, umbralFicticio);
+
+      // ¿Se tacharon ficticias?
+      const ficticiasTachadas = columnasCubiertas
+        .slice(nombresColumnas.length)
+        .some(c => c);
+
+      // Si se tacharon ficticias, usar otra estrategia para cubrir filas
       const filasCubiertas = ficticiasTachadas
         ? filasConCerosIgnorandoFicticiasTachadas(matrizActual, columnasCubiertas, nombresColumnas, umbralFicticio)
         : filasBase;
@@ -72,6 +104,7 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
 
       cumple = totalLineas >= sizeMinima;
 
+      // Guardamos la iteración del Paso 5
       historial.push({
         tipo: 'paso5',
         iteracion,
@@ -85,6 +118,7 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
 
       if (cumple) break;
 
+      // Paso 6: reducción por el valor mínimo de celdas no tachadas
       let minimo = Infinity;
       for (let i = 0; i < sizeFilas; i++) {
         for (let j = 0; j < sizeColumnas; j++) {
@@ -94,6 +128,7 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
         }
       }
 
+      // Aplicamos el valor mínimo a la matriz según la lógica del paso 6
       const nuevaMatriz = matrizActual.map((fila, i) =>
         fila.map((val, j) => {
           if (!filasCubiertas[i] && !columnasCubiertas[j]) {
@@ -106,6 +141,7 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
         })
       );
 
+      // Guardamos la iteración del Paso 6
       historial.push({
         tipo: 'paso6',
         iteracion,
@@ -120,7 +156,7 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
     }
 
     setIteraciones(historial);
-    onResolved?.(matrizActual);
+    onResolved?.(matrizActual); // Devolvemos la matriz final al padre
   }, [JSON.stringify(matriz), JSON.stringify(nombresFilas), JSON.stringify(nombresColumnas), umbralFicticio]);
 
   return (
@@ -128,6 +164,7 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
       <style>{styles}</style>
 
       {iteraciones.map((iter, index) => {
+        // Definición de columnas dinámicas para la tabla
         const columnas = [
           {
             title: 'MATERIA / Grupo',
@@ -160,18 +197,19 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
           })
         ];
 
+        // Filas de la tabla con estilo aplicado según si la fila fue tachada
         const filas = iter.matriz.map((fila, i) => {
           const isReal = i < nombresFilas.length;
           const row = {
             key: i,
-            materiaGrupo: isReal
-              ? (
-                  <div>
-                    <strong>{nombresFilas[i]?.materia || `Materia ${i + 1}`}</strong><br />
-                    Grupo {nombresFilas[i]?.grupo || '?'} = {nombresFilas[i]?.estudiantes || '?'}
-                  </div>
-                )
-              : <div><strong>—</strong><br />Grupo ficticio</div>,
+            materiaGrupo: isReal ? (
+              <div>
+                <strong>{nombresFilas[i]?.materia || `Materia ${i + 1}`}</strong><br />
+                Grupo {nombresFilas[i]?.grupo || '?'} = {nombresFilas[i]?.estudiantes || '?'}
+              </div>
+            ) : (
+              <div><strong>—</strong><br />Grupo ficticio</div>
+            ),
             className: iter.filasCubiertas[i] ? 'fila-tachada' : ''
           };
           fila.forEach((val, j) => {
@@ -193,6 +231,7 @@ export default function Paso5({ matriz = [], nombresFilas = [], nombresColumnas 
               rowClassName={(record) => record.className || ''}
             />
 
+            {/* Descripción visual al final de cada iteración */}
             {iter.tipo === 'paso5' && (
               <div style={{ marginTop: 10 }}>
                 <p><strong>Filas tachadas:</strong> {iter.totalFilas}</p>

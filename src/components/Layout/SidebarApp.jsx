@@ -106,9 +106,9 @@ const SidebarApp = () => {
             padding: 24,
             margin: 0,
             minHeight: 280,
-            width: "100%",           // ✅ Que el Content use todo el espacio
-            maxWidth: "100%",        // ✅ Que no se limite a un ancho máximo
-            overflowX: "auto",       // ✅ Permitir scroll horizontal si el contenido es grande
+            width: "100%",           
+            maxWidth: "100%",      
+            overflowX: "auto",   
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
             boxSizing: "border-box",

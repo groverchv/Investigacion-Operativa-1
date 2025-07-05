@@ -12,16 +12,18 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-dayjs.extend(isSameOrAfter); // 🔥 ¡Extiende el plugin necesario!
+dayjs.extend(isSameOrAfter); //  ¡Extiende el plugin necesario para comparar horas!
 
 export default function CrearHorario({ horarios, setHorarios }) {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [editandoIndex, setEditandoIndex] = useState(null);
-  const [inicio, setInicio] = useState(dayjs('07:00', 'HH:mm'));
-  const [fin, setFin] = useState(dayjs('08:00', 'HH:mm'));
-  const [costo, setCosto] = useState(0);
-  const [nombreHorario, setNombreHorario] = useState('');
+  //  Estados para el formulario de creación/edición de horarios
+  const [modalVisible, setModalVisible] = useState(false); // Muestra/oculta el modal
+  const [editandoIndex, setEditandoIndex] = useState(null); // Índice del horario que se está editando
+  const [inicio, setInicio] = useState(dayjs('07:00', 'HH:mm')); // Hora de inicio
+  const [fin, setFin] = useState(dayjs('08:00', 'HH:mm')); // Hora de fin
+  const [costo, setCosto] = useState(0); // Costo del bloque
+  const [nombreHorario, setNombreHorario] = useState(''); // Nombre personalizado del horario
 
+  //  Función que abre el modal para crear un nuevo horario
   const abrirModalNuevo = () => {
     setInicio(dayjs('07:00', 'HH:mm'));
     setFin(dayjs('08:00', 'HH:mm'));
@@ -31,6 +33,7 @@ export default function CrearHorario({ horarios, setHorarios }) {
     setModalVisible(true);
   };
 
+  //  Función que abre el modal para editar un horario existente
   const abrirModalEditar = (index) => {
     const bloque = horarios[index];
     setInicio(dayjs(bloque.inicio || '07:00', 'HH:mm'));
@@ -41,11 +44,13 @@ export default function CrearHorario({ horarios, setHorarios }) {
     setModalVisible(true);
   };
 
+  //  Función que guarda un nuevo horario o actualiza uno existente
   const guardarBloque = () => {
     try {
       const inicioHora = dayjs(inicio, 'HH:mm');
       const finHora = dayjs(fin, 'HH:mm');
 
+      // Validaciones básicas
       if (!inicioHora.isValid() || !finHora.isValid()) {
         return message.error('Las horas no son válidas');
       }
@@ -56,6 +61,7 @@ export default function CrearHorario({ horarios, setHorarios }) {
 
       const nombreFinal = nombreHorario?.trim() || `Horario ${horarios.length + 1}`;
 
+      // Crear objeto del nuevo bloque horario
       const nuevoBloque = {
         nombre: nombreFinal,
         inicio: inicioHora.format('HH:mm'),
@@ -65,8 +71,10 @@ export default function CrearHorario({ horarios, setHorarios }) {
 
       const nuevaLista = [...horarios];
       if (editandoIndex !== null) {
+        // Actualizar bloque existente
         nuevaLista[editandoIndex] = nuevoBloque;
       } else {
+        // Agregar nuevo bloque
         nuevaLista.push(nuevoBloque);
       }
 
@@ -79,15 +87,17 @@ export default function CrearHorario({ horarios, setHorarios }) {
     }
   };
 
+  //  Elimina un bloque horario de la lista
   const eliminarBloque = (index) => {
     const nuevaLista = [...horarios];
-    nuevaLista.splice(index, 1);
+    nuevaLista.splice(index, 1); // Elimina el horario en la posición indicada
     setHorarios(nuevaLista);
     message.success('Bloque eliminado');
   };
 
   return (
     <div style={{ padding: 16 }}>
+      {/* 🔧 Estilos para pantallas pequeñas */}
       <style>{`
         @media (max-width: 600px) {
           .crear-horario-title {
@@ -103,14 +113,17 @@ export default function CrearHorario({ horarios, setHorarios }) {
         }
       `}</style>
 
+      {/* Título de sección */}
       <Typography.Title level={4} className="crear-horario-title">
         Gestionar Horarios
       </Typography.Title>
 
+      {/* ➕ Botón para abrir modal de creación */}
       <Button type="primary" onClick={abrirModalNuevo}>
         Crear Bloque Horario
       </Button>
 
+      {/*  Lista de horarios actuales con botones para editar/eliminar */}
       <ul className="crear-horario-list" style={{ marginTop: 24, paddingLeft: 16 }}>
         {horarios.map((bloque, index) => (
           <li key={index} style={{ marginBottom: 12 }}>
@@ -129,6 +142,7 @@ export default function CrearHorario({ horarios, setHorarios }) {
         ))}
       </ul>
 
+      {/*  Modal para crear o editar bloque */}
       <Modal
         title={editandoIndex !== null ? 'Editar Bloque' : 'Crear Bloque'}
         open={modalVisible}
@@ -138,6 +152,7 @@ export default function CrearHorario({ horarios, setHorarios }) {
         cancelText="Cancelar"
       >
         <Space direction="vertical" style={{ width: '100%' }}>
+          {/* Campo: Nombre */}
           <div>
             <label>Nombre del horario:</label>
             <Input
@@ -147,6 +162,7 @@ export default function CrearHorario({ horarios, setHorarios }) {
             />
           </div>
 
+          {/* Campo: Hora de inicio */}
           <div>
             <label>Hora de inicio:</label>
             <TimePicker
@@ -160,6 +176,7 @@ export default function CrearHorario({ horarios, setHorarios }) {
             />
           </div>
 
+          {/* Campo: Hora de fin */}
           <div>
             <label>Hora de fin:</label>
             <TimePicker
@@ -173,6 +190,7 @@ export default function CrearHorario({ horarios, setHorarios }) {
             />
           </div>
 
+          {/* Campo: Costo */}
           <div>
             <label>Costo de atención:</label>
             <InputNumber
