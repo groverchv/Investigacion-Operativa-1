@@ -9,7 +9,6 @@ Sistema web para la asignacion optima de aulas universitarias utilizando el **Me
 - **Algoritmo Hungaro**: Asignacion optima minimizando costos
 - **Gestion de Horarios**: Configurar bloques horarios y asignar tiempos
 - **Exportacion PDF**: Generar reportes con los resultados de asignacion
-- **Interfaz Profesional**: Diseno limpio y responsive con Ant Design
 
 ## Tecnologias
 
@@ -98,6 +97,8 @@ Proyecto desarrollado para la UAGRM - Santa Cruz, Bolivia
 Materia: Investigacion Operativa 1
 
 **Estudiante Universitario**: Grover Choque Villca
+
+**Facultad**: Ingenieria en Ciencias de la Computacion y Telecomunicaciones (FICCT)
 
 **Proyecto asignado por**: Ing. Luz Diana Torrez
 
